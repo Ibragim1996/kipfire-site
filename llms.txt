@@ -1,0 +1,29 @@
+# KipFire
+
+> KipFire is an iPhone and iPad app that gives people short prompts to film for Reels, TikTok and YouTube Shorts. It is built for people who want to post but don't know what to post, including beginners who are nervous about filming themselves. KipFire uses AI to write the prompt; the user films the video, so the content stays human.
+
+Key facts:
+- Categories: Funny, Challenges, Questions, Would You Rather, Hot Take, Inner Me, plus For You (all formats around a chosen niche)
+- How it works: open the app, get a random card, film your reaction with the card text on the video, post it
+- Languages: English and Spanish
+- Price: free to start; Premium unlocks unlimited tasks and all categories
+- Privacy: videos stay on the user's device and are never uploaded
+- Platforms: iPhone and iPad (App Store). Android coming soon
+- App Store: https://apps.apple.com/us/app/kipfire/id6755289956
+
+## Pages
+- [Home](https://kipfire.com/): what KipFire is and how it works
+- [No idea what to post?](https://kipfire.com/no-idea-what-to-post/): common reasons people don't post and how prompts help
+- [FAQ](https://kipfire.com/faq/): content ideas, filming yourself, plans, privacy, support
+- [About](https://kipfire.com/about/)
+
+## Content tips
+- [What to post on Reels when you have no ideas: 30 prompts](https://kipfire.com/tips/what-to-post-on-reels/): Thirty ready-to-film prompts for Reels, TikTok and YouTube Shorts, grouped by format, for days when you have no ideas.
+- [5 hooks for talking-head Reels that stop the scroll](https://kipfire.com/tips/hooks-for-talking-head-reels/): Five simple hook formats for talking-head Reels and TikToks, with examples, so people keep watching past the first two seconds.
+- [How to post every day without burning out](https://kipfire.com/tips/post-daily-without-burnout/): A realistic system for posting daily on Reels, TikTok or YouTube Shorts without running out of ideas or energy.
+
+## Legal
+- [Privacy Policy](https://kipfire.com/privacy/)
+- [Terms of Use](https://kipfire.com/terms/)
+
+Contact: support@kipfire.com
