@@ -47,15 +47,14 @@
   </div>
 
   <h2>About me</h2>
-  <p class="write-note">This photo and text appear on the homepage and on the About page. Write it the way you want.</p>
+  <p class="write-note">This is the Founder page in the top menu. It shows your round photo and this text, and nothing else.</p>
   <form class="write-form" id="profile-form">
     <div class="portrait-row">
       <img id="portrait" class="portrait-preview" alt="" hidden>
       <label>Photo<input id="photo" type="file" accept="image/*"></label>
     </div>
     <label>Name<input id="profile-name" maxlength="80" required></label>
-    <label>Short line on the homepage<textarea id="profile-summary" rows="3" required></textarea></label>
-    <label>Full story on the About page<textarea id="profile-body" rows="10" required></textarea></label>
+    <label>Text<textarea id="profile-body" rows="12" required></textarea></label>
     <p class="write-note">A blank line starts a new paragraph. A line that starts with ## and a space becomes a heading.</p>
     <div class="write-actions">
       <button class="btn btn-primary" id="publish-profile" type="submit">Publish my info</button>
@@ -64,7 +63,7 @@
   </form>
 
   <h2>Article</h2>
-  <p class="write-note">A blank line starts a new paragraph. A line that starts with ## and a space becomes a heading. A line that starts with - becomes a list item.</p>
+  <p class="write-note">News and app updates go to News. Tips go to Content tips. A blank line starts a new paragraph. A line that starts with ## and a space becomes a heading. A line that starts with - becomes a list item.</p>
   <form class="write-form" id="editor">
     <label>Type
       <select id="kind">
@@ -97,10 +96,12 @@
   var TOKEN_KEY = 'kipfireSiteToken';
   var savedToken = localStorage.getItem(TOKEN_KEY) || '';
   var posts = [];
-  var profile = { name: '', summary: '', body: '', photo: '' };
+  var tipPosts = [];
+  var profile = { name: '', body: '', photo: '' };
   var pendingPhoto = '';
   var slugTouched = false;
   var originalSlug = '';
+  var originalKind = '';
 
   function token() { return savedToken; }
 
@@ -199,7 +200,6 @@
   function fillProfile(next) {
     profile = next;
     document.getElementById('profile-name').value = next.name || '';
-    document.getElementById('profile-summary').value = next.summary || '';
     document.getElementById('profile-body').value = next.body || '';
     var portrait = document.getElementById('portrait');
     if (next.photo) {
@@ -212,7 +212,7 @@
   function renderExisting() {
     var existingEl = document.getElementById('existing');
     existingEl.innerHTML = '';
-    P.sortPosts(posts).forEach(function (post) {
+    P.sortPosts(posts.concat(tipPosts)).forEach(function (post) {
       var li = document.createElement('li');
       var button = document.createElement('button');
       button.type = 'button';
@@ -232,6 +232,7 @@
         document.getElementById('body').value = post.body;
         document.getElementById('slug').value = post.slug;
         originalSlug = post.slug;
+        originalKind = post.kind === 'tip' ? 'tip' : 'journal';
         slugTouched = true;
         document.getElementById('remove').hidden = false;
         document.getElementById('status').textContent = 'This article is already on the site. Change it and press Publish.';
@@ -246,6 +247,12 @@
     document.getElementById('token-state').textContent = 'Checking the key…';
     try {
       posts = JSON.parse(await readRepoFile('journal/posts.json')).posts || [];
+      try {
+        tipPosts = JSON.parse(await readRepoFile('tips/posts.json')).posts || [];
+      } catch (err) {
+        if (err.status !== 404) throw err;
+        tipPosts = [];
+      }
       try {
         fillProfile(JSON.parse(await readRepoFile('about/profile.json')));
       } catch (err) {
@@ -307,32 +314,28 @@
     }
     var next = {
       name: document.getElementById('profile-name').value.trim(),
-      summary: document.getElementById('profile-summary').value.trim(),
       body: document.getElementById('profile-body').value.trim(),
       photo: pendingPhoto ? 'assets/founder.jpg' : (profile.photo || '')
     };
-    if (!next.name || !next.summary || !next.body) {
-      status.textContent = 'Add your name, the short line, and the full story.';
+    if (!next.name || !next.body) {
+      status.textContent = 'Add your name and the text.';
       return;
     }
     var button = document.getElementById('publish-profile');
     button.disabled = true;
     status.textContent = 'Publishing…';
     try {
-      var aboutHtml = await readRepoFile('about/index.html');
-      var indexHtml = await readRepoFile('index.html');
       var files = [
         { path: 'about/profile.json', content: JSON.stringify(next, null, 2) + '\n' },
-        { path: 'about/index.html', content: P.patchMarked(P.patchMarked(aboutHtml, 'profile:about', P.aboutProfileBlock(next)), 'profile:person', P.personLd(next)) },
-        { path: 'index.html', content: P.patchMarked(indexHtml, 'profile:home', P.homeProfileBlock(next)) }
+        { path: 'founder/index.html', content: P.renderFounder(next) }
       ];
       if (pendingPhoto) {
         files.push({ path: 'assets/founder.jpg', content: pendingPhoto, encoding: 'base64' });
       }
-      await commit(files, [], 'Update founder profile');
+      await commit(files, [], 'Update founder page');
       profile = next;
       pendingPhoto = '';
-      status.textContent = 'Published. In about a minute it will show on the homepage and on https://kipfire.com/about/';
+      status.textContent = 'Published. In about a minute: https://kipfire.com/founder/';
     } catch (err) {
       status.textContent = explain(err);
     } finally {
@@ -349,6 +352,7 @@
     document.getElementById('date').value = today();
     document.getElementById('kind').value = 'news';
     originalSlug = '';
+    originalKind = '';
     slugTouched = false;
     document.getElementById('remove').hidden = true;
     document.getElementById('status').textContent = '';
@@ -378,28 +382,41 @@
     button.disabled = true;
     status.textContent = 'Publishing…';
     try {
-      var next = P.sortPosts(posts.filter(function (item) {
+      var isTip = post.kind === 'tip';
+      var nextJournal = P.sortPosts(posts.filter(function (item) {
         return item.slug !== post.slug && item.slug !== originalSlug;
-      }).concat([post]));
+      }));
+      var nextTips = P.sortPosts(tipPosts.filter(function (item) {
+        return item.slug !== post.slug && item.slug !== originalSlug;
+      }));
+      if (isTip) nextTips = P.sortPosts(nextTips.concat([post]));
+      else nextJournal = P.sortPosts(nextJournal.concat([post]));
+      var oldPath = originalSlug
+        ? ((originalKind === 'tip' ? 'tips/' : 'journal/') + originalSlug + '/index.html')
+        : '';
+      var newPath = (isTip ? 'tips/' : 'journal/') + post.slug + '/index.html';
+      var deletions = oldPath && oldPath !== newPath ? [oldPath] : [];
+      var sitemap = await readRepoFile('sitemap.xml');
+      var llms = await readRepoFile('llms.txt');
       var files = [
-        { path: 'journal/posts.json', content: JSON.stringify({ posts: next }, null, 2) + '\n' },
-        { path: 'journal/index.html', content: P.renderListing(next) },
-        { path: 'journal/feed.xml', content: P.renderFeed(next) },
-        { path: 'journal/' + post.slug + '/index.html', content: P.renderArticle(post) }
+        { path: 'journal/posts.json', content: JSON.stringify({ posts: nextJournal }, null, 2) + '\n' },
+        { path: 'journal/index.html', content: P.renderListing(nextJournal) },
+        { path: 'journal/feed.xml', content: P.renderFeed(nextJournal) },
+        { path: 'tips/posts.json', content: JSON.stringify({ posts: nextTips }, null, 2) + '\n' },
+        { path: 'tips/index.html', content: P.patchMarked(await readRepoFile('tips/index.html'), 'tips', P.tipListBlock(nextTips)) },
+        { path: newPath, content: isTip ? P.renderTipArticle(post) : P.renderArticle(post) },
+        { path: 'index.html', content: P.patchMarked(await readRepoFile('index.html'), 'journal:latest', P.latestBlock(nextJournal)) },
+        { path: 'sitemap.xml', content: P.patchMarked(P.patchMarked(sitemap, 'journal', P.sitemapBlock(nextJournal)), 'tips', P.tipSitemapBlock(nextTips)) },
+        { path: 'llms.txt', content: P.patchMarked(P.patchMarked(llms, 'journal', P.llmsBlock(nextJournal)), 'tips', P.tipLlmsBlock(nextTips)) }
       ];
-      var deletions = [];
-      if (originalSlug && originalSlug !== post.slug) deletions.push('journal/' + originalSlug + '/index.html');
-      files.push(
-        { path: 'index.html', content: P.patchMarked(await readRepoFile('index.html'), 'journal:latest', P.latestBlock(next)) },
-        { path: 'sitemap.xml', content: P.patchMarked(await readRepoFile('sitemap.xml'), 'journal', P.sitemapBlock(next)) },
-        { path: 'llms.txt', content: P.patchMarked(await readRepoFile('llms.txt'), 'journal', P.llmsBlock(next)) }
-      );
       await commit(files, deletions, 'Publish: ' + post.title);
-      posts = next;
+      posts = nextJournal;
+      tipPosts = nextTips;
       originalSlug = post.slug;
+      originalKind = isTip ? 'tip' : 'journal';
       document.getElementById('remove').hidden = false;
       renderExisting();
-      status.textContent = 'Published. In about a minute: https://kipfire.com/journal/' + post.slug + '/';
+      status.textContent = 'Published. In about a minute: https://kipfire.com/' + (isTip ? 'tips/' : 'journal/') + post.slug + '/';
     } catch (err) {
       status.textContent = explain(err);
     } finally {
@@ -412,17 +429,24 @@
     var status = document.getElementById('status');
     status.textContent = 'Removing…';
     try {
-      var next = posts.filter(function (item) { return item.slug !== originalSlug; });
+      var wasTip = originalKind === 'tip';
+      var nextJournal = posts.filter(function (item) { return item.slug !== originalSlug; });
+      var nextTips = tipPosts.filter(function (item) { return item.slug !== originalSlug; });
+      var sitemap = await readRepoFile('sitemap.xml');
+      var llms = await readRepoFile('llms.txt');
       var files = [
-        { path: 'journal/posts.json', content: JSON.stringify({ posts: next }, null, 2) + '\n' },
-        { path: 'journal/index.html', content: P.renderListing(next) },
-        { path: 'journal/feed.xml', content: P.renderFeed(next) },
-        { path: 'index.html', content: P.patchMarked(await readRepoFile('index.html'), 'journal:latest', P.latestBlock(next)) },
-        { path: 'sitemap.xml', content: P.patchMarked(await readRepoFile('sitemap.xml'), 'journal', P.sitemapBlock(next)) },
-        { path: 'llms.txt', content: P.patchMarked(await readRepoFile('llms.txt'), 'journal', P.llmsBlock(next)) }
+        { path: 'journal/posts.json', content: JSON.stringify({ posts: nextJournal }, null, 2) + '\n' },
+        { path: 'journal/index.html', content: P.renderListing(nextJournal) },
+        { path: 'journal/feed.xml', content: P.renderFeed(nextJournal) },
+        { path: 'tips/posts.json', content: JSON.stringify({ posts: nextTips }, null, 2) + '\n' },
+        { path: 'tips/index.html', content: P.patchMarked(await readRepoFile('tips/index.html'), 'tips', P.tipListBlock(nextTips)) },
+        { path: 'index.html', content: P.patchMarked(await readRepoFile('index.html'), 'journal:latest', P.latestBlock(nextJournal)) },
+        { path: 'sitemap.xml', content: P.patchMarked(P.patchMarked(sitemap, 'journal', P.sitemapBlock(nextJournal)), 'tips', P.tipSitemapBlock(nextTips)) },
+        { path: 'llms.txt', content: P.patchMarked(P.patchMarked(llms, 'journal', P.llmsBlock(nextJournal)), 'tips', P.tipLlmsBlock(nextTips)) }
       ];
-      await commit(files, ['journal/' + originalSlug + '/index.html'], 'Unpublish: ' + originalSlug);
-      posts = next;
+      await commit(files, [(wasTip ? 'tips/' : 'journal/') + originalSlug + '/index.html'], 'Unpublish: ' + originalSlug);
+      posts = nextJournal;
+      tipPosts = nextTips;
       document.getElementById('fresh').click();
       renderExisting();
       status.textContent = 'Removed. It will leave the site in about a minute.';

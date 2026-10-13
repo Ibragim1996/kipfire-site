@@ -77,6 +77,7 @@
       ['faq/', 'FAQ'],
       ['tips/', 'Content tips'],
       ['journal/', 'News'],
+      ['founder/', 'Founder'],
       ['about/', 'About']
     ];
     return items.map(function (item) {
@@ -91,6 +92,7 @@
       '<p>Available on iPhone and iPad. Android is coming soon.</p>' +
       '<p>Support: <a href="mailto:support@kipfire.com">support@kipfire.com</a></p></div>' +
       '<nav class="foot-links" aria-label="Footer">' +
+      '<a href="' + prefix + 'founder/">Founder</a>' +
       '<a href="' + prefix + 'about/">About</a>' +
       '<a href="' + prefix + 'no-idea-what-to-post/">No idea what to post?</a>' +
       '<a href="' + prefix + 'faq/">FAQ</a>' +
@@ -199,7 +201,7 @@
 
   function renderListing(posts) {
     var main = '<section class="page-head"><div class="wrap"><h1>News</h1>' +
-      '<p class="lede">Updates to the app, news, and notes on posting. Older pieces stay here. The story behind KipFire is on the <a href="../about/">About</a> page.</p></div></section>' +
+      '<p class="lede">News and app updates. Older pieces stay here. Tips live in <a href="../tips/">Content tips</a>.</p></div></section>' +
       '<section><div class="wrap">' + (posts.length ? listItems(posts, function (post) { return post.slug + '/'; }) : '<p>Nothing published yet.</p>') + '</div></section>';
     return shell({
       prefix: '../',
@@ -261,20 +263,86 @@
     return '<img src="' + prefix + esc(profile.photo) + '" alt="' + esc(profile.name || 'Ibra') + '" width="160" height="160">';
   }
 
-  function homeProfileBlock(profile) {
-    var text = String(profile.summary || '').trim();
-    if (!text) {
-      text = String(profile.body || '').trim().split(/\n{2,}/)[0] || '';
-    }
-    return '<section class="section" id="founder"><div class="wrap founder">' +
-      profilePhoto(profile, '') +
-      '<div><h2>Why I built KipFire</h2><p>' + plainText(text) + '</p>' +
-      '<p class="more"><a href="about/">Read my story</a></p></div></div></section>';
+  function firstLine(text) {
+    var line = String(text || '').trim().split(/\n{2,}/)[0] || '';
+    return line.replace(/^##\s+/, '').slice(0, 180);
   }
 
-  function aboutProfileBlock(profile) {
-    return '<div class="founder founder-story">' + profilePhoto(profile, '../') +
-      '<div><h2>Why I built it</h2>\n' + bodyToHtml(profile.body) + '</div></div>';
+  function renderFounder(profile) {
+    var name = profile.name || 'Ibra';
+    var photo = profile.photo
+      ? '<img class="founder-avatar" src="../' + esc(profile.photo) + '" alt="' + esc(name) + '" width="168" height="168">'
+      : '';
+    var main = '<article class="article founder-page"><div class="wrap">' + photo +
+      '<h1>' + esc(name) + '</h1><div class="founder-copy">' + bodyToHtml(profile.body) + '</div></div></article>';
+    var person = {
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: name,
+      jobTitle: 'Founder',
+      url: SITE + '/founder/',
+      worksFor: { '@type': 'Organization', name: 'KipFire', url: SITE + '/' }
+    };
+    if (profile.photo) person.image = SITE + '/' + profile.photo;
+    return shell({
+      prefix: '../',
+      current: 'founder/',
+      title: name + ', founder of KipFire',
+      description: firstLine(profile.body),
+      canonical: SITE + '/founder/',
+      ld: [org, person]
+    }, main);
+  }
+
+  function renderTipArticle(post) {
+    var url = SITE + '/tips/' + post.slug + '/';
+    var main = '<article class="article"><div class="wrap">' +
+      '<p class="meta"><a href="../">Content tips</a> · <time datetime="' + esc(post.date) + '">' + esc(prettyDate(post.date)) + '</time> · Ibra</p>' +
+      '<h1>' + esc(post.title) + '</h1>\n' +
+      bodyToHtml(post.body) +
+      '<div class="inline-cta"><p>Want a new prompt every time you open your phone? KipFire gives you one card to film.</p>' +
+      '<a class="btn btn-primary" href="https://apps.apple.com/us/app/kipfire/id6755289956" rel="noopener">' + SVG + 'Download on the App Store</a></div>' +
+      '</div></article>';
+    return shell({
+      prefix: '../../',
+      current: 'tips/',
+      title: post.title + ' | KipFire',
+      description: post.description,
+      canonical: url,
+      ogType: 'article',
+      ld: [org, {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: post.title,
+        description: post.description,
+        datePublished: post.date,
+        dateModified: post.date,
+        url: url,
+        mainEntityOfPage: url,
+        inLanguage: 'en',
+        author: { '@type': 'Person', name: 'Ibra', url: SITE + '/founder/' },
+        publisher: { '@type': 'Organization', name: 'KipFire', logo: { '@type': 'ImageObject', url: SITE + '/assets/icon-180.png' } }
+      }]
+    }, main);
+  }
+
+  function tipListBlock(posts) {
+    if (!posts.length) return '';
+    return sortPosts(posts).map(function (post) {
+      return '<li><a href="' + post.slug + '/"><p class="meta">Tip · ' + esc(prettyDate(post.date)) + '</p><h3>' + esc(post.title) + '</h3><p>' + esc(post.description) + '</p></a></li>';
+    }).join('');
+  }
+
+  function tipSitemapBlock(posts) {
+    return sortPosts(posts).map(function (post) {
+      return '  <url><loc>' + SITE + '/tips/' + post.slug + '/</loc><lastmod>' + post.date + '</lastmod></url>';
+    }).join('\n');
+  }
+
+  function tipLlmsBlock(posts) {
+    return sortPosts(posts).map(function (post) {
+      return '- [' + post.title + '](' + SITE + '/tips/' + post.slug + '/): ' + post.description;
+    }).join('\n');
   }
 
   function personLd(profile) {
@@ -317,9 +385,11 @@
     latestBlock: latestBlock,
     sitemapBlock: sitemapBlock,
     llmsBlock: llmsBlock,
-    homeProfileBlock: homeProfileBlock,
-    aboutProfileBlock: aboutProfileBlock,
-    personLd: personLd,
+    renderFounder: renderFounder,
+    renderTipArticle: renderTipArticle,
+    tipListBlock: tipListBlock,
+    tipSitemapBlock: tipSitemapBlock,
+    tipLlmsBlock: tipLlmsBlock,
     patchMarked: patchMarked
   };
 })(typeof window !== 'undefined' ? window : globalThis);

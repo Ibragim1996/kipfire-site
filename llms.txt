@@ -15,8 +15,9 @@ Key facts:
 - [Home](https://kipfire.com/): what KipFire is and how it works
 - [No idea what to post?](https://kipfire.com/no-idea-what-to-post/): common reasons people don't post and how prompts help
 - [FAQ](https://kipfire.com/faq/): content ideas, filming yourself, plans, privacy, support
-- [About](https://kipfire.com/about/): what KipFire is, and why Ibra built it
-- [News](https://kipfire.com/journal/): app updates, news and posting notes. New pieces stay on the site.
+- [Founder](https://kipfire.com/founder/): who made KipFire
+- [About](https://kipfire.com/about/): what KipFire is and how it works
+- [News](https://kipfire.com/journal/): app news and updates. New pieces stay on the site.
 
 ## News
 <!-- journal:start -->
@@ -25,6 +26,8 @@ Key facts:
 <!-- journal:end -->
 
 ## Content tips
+<!-- tips:start -->
+<!-- tips:end -->
 - [What to post on Reels when you have no ideas: 30 prompts](https://kipfire.com/tips/what-to-post-on-reels/): Thirty ready-to-film prompts for Reels, TikTok and YouTube Shorts, grouped by format, for days when you have no ideas.
 - [5 hooks for talking-head Reels that stop the scroll](https://kipfire.com/tips/hooks-for-talking-head-reels/): Five simple hook formats for talking-head Reels and TikToks, with examples, so people keep watching past the first two seconds.
 - [How to post every day without burning out](https://kipfire.com/tips/post-daily-without-burnout/): A realistic system for posting daily on Reels, TikTok or YouTube Shorts without running out of ideas or energy.
