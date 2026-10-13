@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Публикация | KipFire</title>
+<title>Owner desk | KipFire</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0C0C0E">
 <link rel="icon" type="image/png" href="../assets/favicon-64.png">
@@ -13,60 +13,80 @@
 <link rel="stylesheet" href="../assets/site.css">
 </head>
 <body>
-<a class="skip" href="#main">К форме</a>
+<a class="skip" href="#main">Skip to content</a>
 <header class="site-head">
   <div class="wrap">
     <a class="brand" href="../" aria-label="KipFire home"><img src="../assets/icon-180.png" alt="" width="32" height="32"><span>KIPFIRE</span></a>
-    <nav class="nav" aria-label="Main"><a href="../journal/">Как выглядит на сайте</a></nav>
+    <nav class="nav" aria-label="Main"><a href="../">Home</a><a href="../about/">About</a><a href="../journal/">News</a></nav>
   </div>
 </header>
 <main id="main">
 <article class="article"><div class="wrap write-desk">
-  <h1>Свои статьи</h1>
-  <p class="lede">Это страница владельца. Написанное здесь появляется в разделе News и остаётся там. Google и лента новостей подхватывают готовую страницу, а не черновик.</p>
+  <h1>Owner desk</h1>
+  <p class="lede">One page for your photo and story, app updates, news, and tips. What you publish here shows on kipfire.com and stays there.</p>
 
-  <h2>Ключ от сайта</h2>
-  <p>Один раз создайте ключ в своём GitHub, вставьте его сюда и оставьте. Он хранится только в этом браузере и даёт право менять сайт.</p>
-  <ol>
-    <li>Откройте <a href="https://github.com/settings/personal-access-tokens/new" rel="noopener">создание ключа GitHub</a> под аккаунтом Ibragim1996.</li>
-    <li>Имя: <b>KipFire site</b>. Срок: на ваш выбор, можно год.</li>
-    <li>Repository access: только <b>kipfire-site</b>.</li>
-    <li>Permissions → Contents: <b>Read and write</b>.</li>
-    <li>Создайте ключ и вставьте его ниже. Потом GitHub больше его не покажет.</li>
-  </ol>
-  <div class="write-form">
-    <label>Ключ<input id="token" type="password" autocomplete="off" placeholder="github_pat_..."></label>
-    <div class="write-actions">
-      <button class="btn btn-primary" id="save-token" type="button">Сохранить ключ</button>
-      <button class="btn btn-ghost" id="forget-token" type="button">Забыть ключ</button>
+  <div id="key-locked" hidden>
+    <div class="saved-key">
+      <strong>Key saved in this browser.</strong>
+      <p>You can publish from this page. The key stays hidden.</p>
+      <div class="write-actions">
+        <button class="btn btn-ghost" id="replace-key" type="button">Replace key</button>
+        <button class="btn btn-ghost" id="forget-token" type="button">Remove key</button>
+      </div>
     </div>
-    <p class="write-note" id="token-state"></p>
   </div>
 
-  <h2>Статья</h2>
-  <p class="write-note">Пустая строка начинает новый абзац. Строка <b>## Заголовок</b> становится подзаголовком. Строка <b>- пункт</b> становится списком. Две звёздочки вокруг слова делают его жирным.</p>
+  <div id="key-setup">
+    <h2>Site key</h2>
+    <p>Paste the GitHub key once. After it is saved, this box goes away.</p>
+    <div class="write-form">
+      <label>Key<input id="token" type="password" autocomplete="new-password" placeholder="github_pat_..."></label>
+      <button class="btn btn-primary" id="save-token" type="button">Save key</button>
+      <p class="write-note" id="token-state"></p>
+    </div>
+  </div>
+
+  <h2>About me</h2>
+  <p class="write-note">This photo and text appear on the homepage and on the About page. Write it the way you want.</p>
+  <form class="write-form" id="profile-form">
+    <div class="portrait-row">
+      <img id="portrait" class="portrait-preview" alt="" hidden>
+      <label>Photo<input id="photo" type="file" accept="image/*"></label>
+    </div>
+    <label>Name<input id="profile-name" maxlength="80" required></label>
+    <label>Short line on the homepage<textarea id="profile-summary" rows="3" required></textarea></label>
+    <label>Full story on the About page<textarea id="profile-body" rows="10" required></textarea></label>
+    <p class="write-note">A blank line starts a new paragraph. A line that starts with ## and a space becomes a heading.</p>
+    <div class="write-actions">
+      <button class="btn btn-primary" id="publish-profile" type="submit">Publish my info</button>
+    </div>
+    <p class="write-note" id="profile-status" role="status"></p>
+  </form>
+
+  <h2>Article</h2>
+  <p class="write-note">A blank line starts a new paragraph. A line that starts with ## and a space becomes a heading. A line that starts with - becomes a list item.</p>
   <form class="write-form" id="editor">
-    <label>Тип
+    <label>Type
       <select id="kind">
-        <option value="news">Новость</option>
-        <option value="update">Обновление приложения</option>
-        <option value="tip">Совет</option>
+        <option value="news">News</option>
+        <option value="update">App update</option>
+        <option value="tip">Tip</option>
       </select>
     </label>
-    <label>Заголовок<input id="title" required maxlength="140"></label>
-    <label>Короткое описание, его читает Google<input id="description" required maxlength="220"></label>
-    <label>Дата<input id="date" type="date" required></label>
-    <label>Адрес страницы<input id="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*"></label>
-    <label>Текст<textarea id="body" required rows="14"></textarea></label>
+    <label>Title<input id="title" required maxlength="140"></label>
+    <label>Short description, for Google<input id="description" required maxlength="220"></label>
+    <label>Date<input id="date" type="date" required></label>
+    <label>Page address<input id="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*"></label>
+    <label>Text<textarea id="body" required rows="14"></textarea></label>
     <div class="write-actions">
-      <button class="btn btn-primary" id="publish" type="submit">Опубликовать</button>
-      <button class="btn btn-ghost" id="fresh" type="button">Новая статья</button>
-      <button class="btn btn-ghost" id="remove" type="button" hidden>Снять с сайта</button>
+      <button class="btn btn-primary" id="publish" type="submit">Publish</button>
+      <button class="btn btn-ghost" id="fresh" type="button">New article</button>
+      <button class="btn btn-ghost" id="remove" type="button" hidden>Remove from the site</button>
     </div>
     <p class="write-note" id="status" role="status"></p>
   </form>
 
-  <h2>Уже на сайте</h2>
+  <h2>Already on the site</h2>
   <ul class="tip-list" id="existing"></ul>
 </div></article>
 </main>
@@ -75,30 +95,27 @@
 (function () {
   var P = window.KipfirePublisher;
   var TOKEN_KEY = 'kipfireSiteToken';
-  var tokenInput = document.getElementById('token');
-  var tokenState = document.getElementById('token-state');
-  var statusEl = document.getElementById('status');
-  var existingEl = document.getElementById('existing');
+  var savedToken = localStorage.getItem(TOKEN_KEY) || '';
+  var posts = [];
+  var profile = { name: '', summary: '', body: '', photo: '' };
+  var pendingPhoto = '';
   var slugTouched = false;
   var originalSlug = '';
-  var posts = [];
 
-  function token() {
-    return (tokenInput.value || '').trim();
-  }
-
-  function setStatus(text) {
-    statusEl.textContent = text || '';
-  }
+  function token() { return savedToken; }
 
   function today() {
     var d = new Date();
-    var m = String(d.getMonth() + 1).padStart(2, '0');
-    var day = String(d.getDate()).padStart(2, '0');
-    return d.getFullYear() + '-' + m + '-' + day;
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
-
   document.getElementById('date').value = today();
+
+  function explain(err) {
+    if (err.status === 401) return 'This key was rejected. Create a new one and save it again.';
+    if (err.status === 403) return 'This key needs Contents set to Read and write on kipfire-site.';
+    if (err.status === 404) return 'kipfire-site is not available to this key. Select that repository when you create the key.';
+    return err.message || 'Could not publish.';
+  }
 
   async function gh(pathname, options) {
     var res = await fetch('https://api.github.com' + pathname, Object.assign({}, options, {
@@ -112,7 +129,7 @@
     var data = null;
     try { data = text ? JSON.parse(text) : null; } catch (e) { data = { message: text }; }
     if (!res.ok) {
-      var err = new Error((data && data.message) || ('Ошибка ' + res.status));
+      var err = new Error((data && data.message) || ('Error ' + res.status));
       err.status = res.status;
       throw err;
     }
@@ -138,187 +155,16 @@
     return decodeContent(file);
   }
 
-  function explain(err) {
-    if (err.status === 401) return 'Ключ не подошёл. Создайте новый и вставьте его снова.';
-    if (err.status === 403) return 'Этому ключу не хватает права Contents: Read and write на репозиторий kipfire-site.';
-    if (err.status === 404) return 'Репозиторий kipfire-site не найден для этого ключа. В доступе должен быть выбран именно он.';
-    return err.message || 'Не получилось опубликовать.';
-  }
-
-  function fillForm(post) {
-    document.getElementById('kind').value = post ? post.kind : 'news';
-    document.getElementById('title').value = post ? post.title : '';
-    document.getElementById('description').value = post ? post.description : '';
-    document.getElementById('date').value = post ? post.date : today();
-    document.getElementById('body').value = post ? post.body : '';
-    document.getElementById('slug').value = post ? post.slug : '';
-    originalSlug = post ? post.slug : '';
-    slugTouched = !!post;
-    document.getElementById('remove').hidden = !post;
-  }
-
-  function renderExisting() {
-    existingEl.innerHTML = '';
-    P.sortPosts(posts).forEach(function (post) {
-      var li = document.createElement('li');
-      var button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'existing-post';
-      var meta = document.createElement('p');
-      meta.className = 'meta';
-      meta.textContent = (P.KINDS[post.kind] || 'News') + ' · ' + P.prettyDate(post.date);
-      var title = document.createElement('h3');
-      title.textContent = post.title;
-      button.appendChild(meta);
-      button.appendChild(title);
-      button.addEventListener('click', function () {
-        fillForm(post);
-        setStatus('Это уже опубликованная статья. Измените текст и нажмите «Опубликовать».');
-        document.getElementById('title').focus();
-      });
-      li.appendChild(button);
-      existingEl.appendChild(li);
-    });
-  }
-
-  async function loadPosts() {
-    if (!token()) {
-      tokenState.textContent = 'Ключ ещё не сохранён.';
-      return;
-    }
-    tokenState.textContent = 'Проверяю ключ…';
-    try {
-      var raw = await readRepoFile('journal/posts.json');
-      posts = JSON.parse(raw).posts || [];
-      tokenState.textContent = 'Ключ работает. Можно писать.';
-      renderExisting();
-    } catch (err) {
-      tokenState.textContent = explain(err);
-    }
-  }
-
-  document.getElementById('title').addEventListener('input', function () {
-    if (!slugTouched) document.getElementById('slug').value = P.slugify(this.value);
-  });
-  document.getElementById('slug').addEventListener('input', function () {
-    slugTouched = true;
-  });
-
-  document.getElementById('save-token').addEventListener('click', function () {
-    if (!token()) return;
-    localStorage.setItem(TOKEN_KEY, token());
-    loadPosts();
-  });
-  document.getElementById('forget-token').addEventListener('click', function () {
-    localStorage.removeItem(TOKEN_KEY);
-    tokenInput.value = '';
-    posts = [];
-    renderExisting();
-    tokenState.textContent = 'Ключ удалён из этого браузера. На GitHub он ещё действует, пока вы сами его не отзовёте.';
-  });
-  document.getElementById('fresh').addEventListener('click', function () {
-    fillForm(null);
-    slugTouched = false;
-    setStatus('');
-  });
-
-  document.getElementById('editor').addEventListener('submit', async function (event) {
-    event.preventDefault();
-    if (!token()) {
-      setStatus('Сначала вставьте и сохраните ключ.');
-      return;
-    }
-    var post = {
-      slug: P.slugify(document.getElementById('slug').value),
-      title: document.getElementById('title').value.trim(),
-      description: document.getElementById('description').value.trim(),
-      date: document.getElementById('date').value,
-      kind: document.getElementById('kind').value,
-      body: document.getElementById('body').value.trim()
-    };
-    if (!post.title || !post.description || !post.body || !post.date) {
-      setStatus('Заполните заголовок, описание, дату и текст.');
-      return;
-    }
-    document.getElementById('slug').value = post.slug;
-    var publishBtn = document.getElementById('publish');
-    publishBtn.disabled = true;
-    setStatus('Публикую…');
-    try {
-      var next = posts.filter(function (item) {
-        return item.slug !== post.slug && item.slug !== originalSlug;
-      });
-      next.push(post);
-      next = P.sortPosts(next);
-      var files = [
-        { path: 'journal/posts.json', content: JSON.stringify({ posts: next }, null, 2) + '\n' },
-        { path: 'journal/index.html', content: P.renderListing(next) },
-        { path: 'journal/feed.xml', content: P.renderFeed(next) },
-        { path: 'journal/' + post.slug + '/index.html', content: P.renderArticle(post) }
-      ];
-      var deletions = [];
-      if (originalSlug && originalSlug !== post.slug) {
-        deletions.push('journal/' + originalSlug + '/index.html');
-      }
-      var indexHtml = await readRepoFile('index.html');
-      var sitemap = await readRepoFile('sitemap.xml');
-      var llms = await readRepoFile('llms.txt');
-      files.push(
-        { path: 'index.html', content: P.patchMarked(indexHtml, 'journal:latest', P.latestBlock(next)) },
-        { path: 'sitemap.xml', content: P.patchMarked(sitemap, 'journal', P.sitemapBlock(next)) },
-        { path: 'llms.txt', content: P.patchMarked(llms, 'journal', P.llmsBlock(next)) }
-      );
-      await commit(files, deletions, 'Publish: ' + post.title);
-      posts = next;
-      originalSlug = post.slug;
-      document.getElementById('remove').hidden = false;
-      renderExisting();
-      setStatus('Готово. Через минуту статья будет здесь: https://kipfire.com/journal/' + post.slug + '/');
-    } catch (err) {
-      setStatus(explain(err));
-    } finally {
-      publishBtn.disabled = false;
-    }
-  });
-
-  document.getElementById('remove').addEventListener('click', async function () {
-    if (!originalSlug) return;
-    if (!confirm('Снять эту статью с сайта?')) return;
-    setStatus('Снимаю…');
-    try {
-      var next = posts.filter(function (item) { return item.slug !== originalSlug; });
-      var files = [
-        { path: 'journal/posts.json', content: JSON.stringify({ posts: next }, null, 2) + '\n' },
-        { path: 'journal/index.html', content: P.renderListing(next) },
-        { path: 'journal/feed.xml', content: P.renderFeed(next) }
-      ];
-      var indexHtml = await readRepoFile('index.html');
-      var sitemap = await readRepoFile('sitemap.xml');
-      var llms = await readRepoFile('llms.txt');
-      files.push(
-        { path: 'index.html', content: P.patchMarked(indexHtml, 'journal:latest', P.latestBlock(next)) },
-        { path: 'sitemap.xml', content: P.patchMarked(sitemap, 'journal', P.sitemapBlock(next)) },
-        { path: 'llms.txt', content: P.patchMarked(llms, 'journal', P.llmsBlock(next)) }
-      );
-      await commit(files, ['journal/' + originalSlug + '/index.html'], 'Unpublish: ' + originalSlug);
-      posts = next;
-      fillForm(null);
-      renderExisting();
-      setStatus('Статья снята. Через минуту её не будет на сайте.');
-    } catch (err) {
-      setStatus(explain(err));
-    }
-  });
-
   async function commit(files, deletions, message) {
     var ref = await gh('/repos/' + P.OWNER + '/' + P.REPO + '/git/ref/heads/main');
     var parentSha = ref.object.sha;
     var parent = await gh('/repos/' + P.OWNER + '/' + P.REPO + '/git/commits/' + parentSha);
     var tree = [];
     for (var i = 0; i < files.length; i++) {
+      var encoded = files[i].encoding === 'base64' ? files[i].content : toBase64(files[i].content);
       var blob = await gh('/repos/' + P.OWNER + '/' + P.REPO + '/git/blobs', {
         method: 'POST',
-        body: JSON.stringify({ content: toBase64(files[i].content), encoding: 'base64' })
+        body: JSON.stringify({ content: encoded, encoding: 'base64' })
       });
       tree.push({ path: files[i].path, mode: '100644', type: 'blob', sha: blob.sha });
     }
@@ -339,13 +185,254 @@
     });
   }
 
-  var saved = localStorage.getItem(TOKEN_KEY) || '';
-  if (saved) {
-    tokenInput.value = saved;
-    loadPosts();
-  } else {
-    tokenState.textContent = 'Ключ ещё не сохранён.';
+  function showLocked() {
+    document.getElementById('key-setup').hidden = true;
+    document.getElementById('key-locked').hidden = false;
   }
+  function showSetup(message) {
+    document.getElementById('key-locked').hidden = true;
+    document.getElementById('key-setup').hidden = false;
+    document.getElementById('token').value = '';
+    document.getElementById('token-state').textContent = message || '';
+  }
+
+  function fillProfile(next) {
+    profile = next;
+    document.getElementById('profile-name').value = next.name || '';
+    document.getElementById('profile-summary').value = next.summary || '';
+    document.getElementById('profile-body').value = next.body || '';
+    var portrait = document.getElementById('portrait');
+    if (next.photo) {
+      portrait.hidden = false;
+      portrait.src = '../' + next.photo + '?v=' + Date.now();
+      portrait.alt = next.name || '';
+    }
+  }
+
+  function renderExisting() {
+    var existingEl = document.getElementById('existing');
+    existingEl.innerHTML = '';
+    P.sortPosts(posts).forEach(function (post) {
+      var li = document.createElement('li');
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'existing-post';
+      var meta = document.createElement('p');
+      meta.className = 'meta';
+      meta.textContent = (P.KINDS[post.kind] || 'News') + ' · ' + P.prettyDate(post.date);
+      var title = document.createElement('h3');
+      title.textContent = post.title;
+      button.appendChild(meta);
+      button.appendChild(title);
+      button.addEventListener('click', function () {
+        document.getElementById('kind').value = post.kind;
+        document.getElementById('title').value = post.title;
+        document.getElementById('description').value = post.description;
+        document.getElementById('date').value = post.date;
+        document.getElementById('body').value = post.body;
+        document.getElementById('slug').value = post.slug;
+        originalSlug = post.slug;
+        slugTouched = true;
+        document.getElementById('remove').hidden = false;
+        document.getElementById('status').textContent = 'This article is already on the site. Change it and press Publish.';
+        document.getElementById('title').focus();
+      });
+      li.appendChild(button);
+      existingEl.appendChild(li);
+    });
+  }
+
+  async function loadDesk() {
+    document.getElementById('token-state').textContent = 'Checking the key…';
+    try {
+      posts = JSON.parse(await readRepoFile('journal/posts.json')).posts || [];
+      try {
+        fillProfile(JSON.parse(await readRepoFile('about/profile.json')));
+      } catch (err) {
+        if (err.status !== 404) throw err;
+      }
+      showLocked();
+      renderExisting();
+    } catch (err) {
+      savedToken = '';
+      localStorage.removeItem(TOKEN_KEY);
+      showSetup(explain(err));
+    }
+  }
+
+  document.getElementById('save-token').addEventListener('click', function () {
+    var value = document.getElementById('token').value.trim();
+    if (!value) return;
+    savedToken = value;
+    localStorage.setItem(TOKEN_KEY, value);
+    loadDesk();
+  });
+  document.getElementById('replace-key').addEventListener('click', function () {
+    showSetup('Paste the new key.');
+  });
+  document.getElementById('forget-token').addEventListener('click', function () {
+    savedToken = '';
+    localStorage.removeItem(TOKEN_KEY);
+    showSetup('Key removed from this browser.');
+  });
+
+  document.getElementById('photo').addEventListener('change', function () {
+    var file = this.files && this.files[0];
+    if (!file) return;
+    var img = new Image();
+    var url = URL.createObjectURL(file);
+    img.onload = function () {
+      var max = 800;
+      var scale = Math.min(1, max / Math.max(img.width, img.height));
+      var canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(img.width * scale));
+      canvas.height = Math.max(1, Math.round(img.height * scale));
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      var data = canvas.toDataURL('image/jpeg', 0.86);
+      pendingPhoto = data.split(',')[1];
+      var portrait = document.getElementById('portrait');
+      portrait.hidden = false;
+      portrait.src = data;
+    };
+    img.src = url;
+  });
+
+  document.getElementById('profile-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    var status = document.getElementById('profile-status');
+    if (!token()) {
+      status.textContent = 'Save the key first.';
+      return;
+    }
+    var next = {
+      name: document.getElementById('profile-name').value.trim(),
+      summary: document.getElementById('profile-summary').value.trim(),
+      body: document.getElementById('profile-body').value.trim(),
+      photo: pendingPhoto ? 'assets/founder.jpg' : (profile.photo || '')
+    };
+    if (!next.name || !next.summary || !next.body) {
+      status.textContent = 'Add your name, the short line, and the full story.';
+      return;
+    }
+    var button = document.getElementById('publish-profile');
+    button.disabled = true;
+    status.textContent = 'Publishing…';
+    try {
+      var aboutHtml = await readRepoFile('about/index.html');
+      var indexHtml = await readRepoFile('index.html');
+      var files = [
+        { path: 'about/profile.json', content: JSON.stringify(next, null, 2) + '\n' },
+        { path: 'about/index.html', content: P.patchMarked(P.patchMarked(aboutHtml, 'profile:about', P.aboutProfileBlock(next)), 'profile:person', P.personLd(next)) },
+        { path: 'index.html', content: P.patchMarked(indexHtml, 'profile:home', P.homeProfileBlock(next)) }
+      ];
+      if (pendingPhoto) {
+        files.push({ path: 'assets/founder.jpg', content: pendingPhoto, encoding: 'base64' });
+      }
+      await commit(files, [], 'Update founder profile');
+      profile = next;
+      pendingPhoto = '';
+      status.textContent = 'Published. In about a minute it will show on the homepage and on https://kipfire.com/about/';
+    } catch (err) {
+      status.textContent = explain(err);
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  document.getElementById('title').addEventListener('input', function () {
+    if (!slugTouched) document.getElementById('slug').value = P.slugify(this.value);
+  });
+  document.getElementById('slug').addEventListener('input', function () { slugTouched = true; });
+  document.getElementById('fresh').addEventListener('click', function () {
+    document.getElementById('editor').reset();
+    document.getElementById('date').value = today();
+    document.getElementById('kind').value = 'news';
+    originalSlug = '';
+    slugTouched = false;
+    document.getElementById('remove').hidden = true;
+    document.getElementById('status').textContent = '';
+  });
+
+  document.getElementById('editor').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    var status = document.getElementById('status');
+    if (!token()) {
+      status.textContent = 'Save the key first.';
+      return;
+    }
+    var post = {
+      slug: P.slugify(document.getElementById('slug').value),
+      title: document.getElementById('title').value.trim(),
+      description: document.getElementById('description').value.trim(),
+      date: document.getElementById('date').value,
+      kind: document.getElementById('kind').value,
+      body: document.getElementById('body').value.trim()
+    };
+    if (!post.title || !post.description || !post.body || !post.date) {
+      status.textContent = 'Add a title, description, date, and text.';
+      return;
+    }
+    document.getElementById('slug').value = post.slug;
+    var button = document.getElementById('publish');
+    button.disabled = true;
+    status.textContent = 'Publishing…';
+    try {
+      var next = P.sortPosts(posts.filter(function (item) {
+        return item.slug !== post.slug && item.slug !== originalSlug;
+      }).concat([post]));
+      var files = [
+        { path: 'journal/posts.json', content: JSON.stringify({ posts: next }, null, 2) + '\n' },
+        { path: 'journal/index.html', content: P.renderListing(next) },
+        { path: 'journal/feed.xml', content: P.renderFeed(next) },
+        { path: 'journal/' + post.slug + '/index.html', content: P.renderArticle(post) }
+      ];
+      var deletions = [];
+      if (originalSlug && originalSlug !== post.slug) deletions.push('journal/' + originalSlug + '/index.html');
+      files.push(
+        { path: 'index.html', content: P.patchMarked(await readRepoFile('index.html'), 'journal:latest', P.latestBlock(next)) },
+        { path: 'sitemap.xml', content: P.patchMarked(await readRepoFile('sitemap.xml'), 'journal', P.sitemapBlock(next)) },
+        { path: 'llms.txt', content: P.patchMarked(await readRepoFile('llms.txt'), 'journal', P.llmsBlock(next)) }
+      );
+      await commit(files, deletions, 'Publish: ' + post.title);
+      posts = next;
+      originalSlug = post.slug;
+      document.getElementById('remove').hidden = false;
+      renderExisting();
+      status.textContent = 'Published. In about a minute: https://kipfire.com/journal/' + post.slug + '/';
+    } catch (err) {
+      status.textContent = explain(err);
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  document.getElementById('remove').addEventListener('click', async function () {
+    if (!originalSlug || !confirm('Remove this article from the site?')) return;
+    var status = document.getElementById('status');
+    status.textContent = 'Removing…';
+    try {
+      var next = posts.filter(function (item) { return item.slug !== originalSlug; });
+      var files = [
+        { path: 'journal/posts.json', content: JSON.stringify({ posts: next }, null, 2) + '\n' },
+        { path: 'journal/index.html', content: P.renderListing(next) },
+        { path: 'journal/feed.xml', content: P.renderFeed(next) },
+        { path: 'index.html', content: P.patchMarked(await readRepoFile('index.html'), 'journal:latest', P.latestBlock(next)) },
+        { path: 'sitemap.xml', content: P.patchMarked(await readRepoFile('sitemap.xml'), 'journal', P.sitemapBlock(next)) },
+        { path: 'llms.txt', content: P.patchMarked(await readRepoFile('llms.txt'), 'journal', P.llmsBlock(next)) }
+      ];
+      await commit(files, ['journal/' + originalSlug + '/index.html'], 'Unpublish: ' + originalSlug);
+      posts = next;
+      document.getElementById('fresh').click();
+      renderExisting();
+      status.textContent = 'Removed. It will leave the site in about a minute.';
+    } catch (err) {
+      status.textContent = explain(err);
+    }
+  });
+
+  if (savedToken) loadDesk();
+  else showSetup('Paste the key, then press Save key.');
 })();
 </script>
 </body>

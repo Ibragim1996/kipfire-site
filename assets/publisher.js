@@ -252,6 +252,44 @@
     }).join('\n');
   }
 
+  function plainText(text) {
+    return esc(text).replace(/\n/g, '<br>');
+  }
+
+  function profilePhoto(profile, prefix) {
+    if (!profile.photo) return '';
+    return '<img src="' + prefix + esc(profile.photo) + '" alt="' + esc(profile.name || 'Ibra') + '" width="160" height="160">';
+  }
+
+  function homeProfileBlock(profile) {
+    var text = String(profile.summary || '').trim();
+    if (!text) {
+      text = String(profile.body || '').trim().split(/\n{2,}/)[0] || '';
+    }
+    return '<section class="section" id="founder"><div class="wrap founder">' +
+      profilePhoto(profile, '') +
+      '<div><h2>Why I built KipFire</h2><p>' + plainText(text) + '</p>' +
+      '<p class="more"><a href="about/">Read my story</a></p></div></div></section>';
+  }
+
+  function aboutProfileBlock(profile) {
+    return '<div class="founder founder-story">' + profilePhoto(profile, '../') +
+      '<div><h2>Why I built it</h2>\n' + bodyToHtml(profile.body) + '</div></div>';
+  }
+
+  function personLd(profile) {
+    var person = {
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: profile.name || 'Ibra',
+      jobTitle: 'Founder',
+      url: SITE + '/about/',
+      worksFor: { '@type': 'Organization', name: 'KipFire', url: SITE + '/' }
+    };
+    if (profile.photo) person.image = SITE + '/' + profile.photo;
+    return '<script type="application/ld+json">' + jsonLd(person) + '</script>';
+  }
+
   function patchMarked(source, name, inner) {
     var start = '<!-- ' + name + ':start -->';
     var end = '<!-- ' + name + ':end -->';
@@ -279,6 +317,9 @@
     latestBlock: latestBlock,
     sitemapBlock: sitemapBlock,
     llmsBlock: llmsBlock,
+    homeProfileBlock: homeProfileBlock,
+    aboutProfileBlock: aboutProfileBlock,
+    personLd: personLd,
     patchMarked: patchMarked
   };
 })(typeof window !== 'undefined' ? window : globalThis);
