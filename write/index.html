@@ -27,10 +27,9 @@
 
   <div id="gate">
     <h2 id="gate-title">Sign in</h2>
-    <p id="gate-copy">Only your password can change the site. Opening this link is not enough.</p>
+    <p id="gate-copy">Sign in with your password. The GitHub key is already saved for the whole site.</p>
     <form class="write-form" id="gate-form">
       <label>Password<input id="password" type="password" autocomplete="current-password" required minlength="8"></label>
-      <label id="key-label" hidden>GitHub key, one time<input id="github-key" type="password" autocomplete="off" placeholder="github_pat_..."></label>
       <button class="btn btn-primary" id="gate-button" type="submit">Sign in</button>
       <p class="write-note" id="gate-status" role="status"></p>
     </form>
@@ -94,7 +93,7 @@
   var API = 'https://kipfire-backend.onrender.com/api/site-admin';
   var SESSION_KEY = 'kipfireOwnerSession';
   var session = localStorage.getItem(SESSION_KEY) || '';
-  var needsSetup = false;
+  localStorage.removeItem('kipfireSiteToken');
   var posts = [];
   var tipPosts = [];
   var profile = { name: '', body: '', photo: '' };
@@ -150,18 +149,6 @@
     document.getElementById('desk').hidden = true;
     document.getElementById('gate').hidden = false;
     document.getElementById('gate-status').textContent = message || '';
-    var keyLabel = document.getElementById('key-label');
-    keyLabel.hidden = !needsSetup;
-    document.getElementById('gate-title').textContent = needsSetup ? 'Create your password' : 'Sign in';
-    document.getElementById('gate-copy').textContent = needsSetup
-      ? 'Choose a password. Paste the GitHub key once. Every other phone or browser will ask for the password only.'
-      : 'Sign in with the password you created. The GitHub key is already saved for the whole site.';
-    document.getElementById('gate-button').textContent = needsSetup ? 'Save and sign in' : 'Sign in';
-    var savedKey = localStorage.getItem('kipfireSiteToken') || '';
-    if (needsSetup && savedKey && !document.getElementById('github-key').value) {
-      document.getElementById('github-key').value = savedKey;
-      document.getElementById('gate-copy').textContent = 'The GitHub key from this browser is already in the box, shown as dots. Choose a password and press Save. After that, the phone only needs the password.';
-    }
   }
 
   function fillProfile(next) {
@@ -240,22 +227,10 @@
     var password = document.getElementById('password').value;
     status.textContent = 'Checking…';
     try {
-      var data;
-      if (needsSetup) {
-        data = await api('/setup', {
-          method: 'POST',
-          body: JSON.stringify({
-            password: password,
-            githubToken: document.getElementById('github-key').value.trim()
-          })
-        });
-        localStorage.removeItem('kipfireSiteToken');
-      } else {
-        data = await api('/login', {
-          method: 'POST',
-          body: JSON.stringify({ password: password })
-        });
-      }
+      var data = await api('/login', {
+        method: 'POST',
+        body: JSON.stringify({ password: password })
+      });
       session = data.session;
       localStorage.setItem(SESSION_KEY, session);
       document.getElementById('password').value = '';
@@ -442,14 +417,8 @@
     }
   });
 
-  api('/status').then(function (data) {
-    needsSetup = !!data.needsSetup;
-    if (session && !needsSetup) return loadDesk();
-    showGate('');
-  }).catch(function () {
-    needsSetup = false;
-    showGate('Sign in with your password. If this just started, wait a minute and refresh.');
-  });
+  if (session) loadDesk();
+  else showGate('');
 })();
 </script>
 </body>
