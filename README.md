@@ -17,6 +17,9 @@ Static website for KipFire. Plain HTML + CSS, no build step needed to host.
    - CNAME for `www`: `<your-github-username>.github.io`
 5. Wait for DNS (minutes to a few hours). Then submit https://kipfire.com/sitemap.xml in Google Search Console.
 
+## Publishing news yourself
+Open https://kipfire.com/write/ while signed into GitHub as the site owner. The page asks for a fine-grained token limited to this repo (Contents: Read and write). Articles are committed as normal pages under `/journal/`, so they stay on the site and are listed in the sitemap, the RSS feed, and `llms.txt`.
+
 ## After launch
 - Update the Privacy Policy URL in App Store Connect to https://kipfire.com/privacy/
 - Keep the old GitHub Pages legal links online until every app version links to the new ones.

@@ -149,6 +149,15 @@ p{margin:0 0 1em}
 .tip-list a:hover h3{color:var(--violet-hi)}
 .tip-list h3{font-size:30px;margin-bottom:6px}
 .tip-list p{color:var(--mute);margin:0}
+.tip-list .meta{color:var(--violet-hi);font-size:13px;letter-spacing:.04em;text-transform:uppercase;margin:0 0 8px}
+.existing-post{display:block;width:100%;text-align:left;background:transparent;border:0;padding:26px 0;color:inherit;cursor:pointer;font:inherit}
+.existing-post h3{font-size:30px;margin-bottom:6px}
+.write-desk h1{font-size:clamp(40px,6vw,64px)}
+.write-form{display:grid;gap:14px;margin:18px 0 28px}
+.write-form label{display:grid;gap:6px;font-size:14px;color:var(--mute)}
+.write-form input,.write-form textarea,.write-form select{width:100%;background:#17171A;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:400 16px/1.5 var(--body)}
+.write-actions{display:flex;flex-wrap:wrap;gap:10px}
+.write-note{color:var(--mute);font-size:15px}
 .page-head{padding:72px 0 40px}
 .page-head h1{margin-bottom:16px}
 

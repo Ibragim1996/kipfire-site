@@ -1,0 +1,20 @@
+{
+  "posts": [
+    {
+      "slug": "ten-free-tasks-and-every-category",
+      "title": "A free account now includes 10 tasks a day and every category",
+      "description": "Registered KipFire accounts get 10 free tasks a day across all six categories. Guests get 5 a day. Premium stays unlimited.",
+      "date": "2026-10-13",
+      "kind": "update",
+      "body": "A free KipFire account now covers more of the app.\n\n## What a free account includes\n\nYou get 10 tasks a day. Those 10 can come from any category: Funny, Challenges, Questions, Would You Rather, Hot Take, or Inner Me. It is one shared limit, not 10 from each category.\n\n## What guests get\n\nWithout an account, you get 5 tasks a day, and only Funny and Challenges. After the fifth task, the app offers a free account for the full 10 and the rest of the categories.\n\n## What Premium is for\n\nPremium removes the daily limit. The categories themselves are open on a free account.\n\nThe allowance refreshes on a rolling window, not at midnight."
+    },
+    {
+      "slug": "kipfire-is-on-the-app-store",
+      "title": "KipFire is on the App Store",
+      "description": "KipFire is available for iPhone and iPad. Open it, get one short prompt, film your reaction, and post it.",
+      "date": "2026-09-29",
+      "kind": "news",
+      "body": "KipFire is on the App Store for iPhone and iPad.\n\nThe app gives you one short card to film: a question, a challenge, a hot take, a would-you-rather, a funny line, or an honest line about you. You react on camera. The card sits on the video. The video stays on your phone.\n\nAndroid is not out yet.\n\nSearch for KipFire on the App Store, or use the download button on this site."
+    }
+  ]
+}

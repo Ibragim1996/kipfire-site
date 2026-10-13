@@ -6,7 +6,7 @@ Key facts:
 - Categories: Funny, Challenges, Questions, Would You Rather, Hot Take, Inner Me, plus For You (all formats around a chosen niche)
 - How it works: open the app, get a random card, film your reaction with the card text on the video, post it
 - Languages: English and Spanish
-- Price: free to start; Premium unlocks unlimited tasks and all categories
+- Price: free to start. Guests get 5 tasks a day in Funny and Challenges. A free account gets 10 tasks a day and all six categories. Premium removes the daily limit.
 - Privacy: videos stay on the user's device and are never uploaded
 - Platforms: iPhone and iPad (App Store). Android coming soon
 - App Store: https://apps.apple.com/us/app/kipfire/id6755289956
@@ -15,7 +15,14 @@ Key facts:
 - [Home](https://kipfire.com/): what KipFire is and how it works
 - [No idea what to post?](https://kipfire.com/no-idea-what-to-post/): common reasons people don't post and how prompts help
 - [FAQ](https://kipfire.com/faq/): content ideas, filming yourself, plans, privacy, support
-- [About](https://kipfire.com/about/)
+- [About](https://kipfire.com/about/): what KipFire is, and why Ibra built it
+- [News](https://kipfire.com/journal/): app updates, news and posting notes. New pieces stay on the site.
+
+## News
+<!-- journal:start -->
+- [A free account now includes 10 tasks a day and every category](https://kipfire.com/journal/ten-free-tasks-and-every-category/): Registered KipFire accounts get 10 free tasks a day across all six categories. Guests get 5 a day. Premium stays unlimited.
+- [KipFire is on the App Store](https://kipfire.com/journal/kipfire-is-on-the-app-store/): KipFire is available for iPhone and iPad. Open it, get one short prompt, film your reaction, and post it.
+<!-- journal:end -->
 
 ## Content tips
 - [What to post on Reels when you have no ideas: 30 prompts](https://kipfire.com/tips/what-to-post-on-reels/): Thirty ready-to-film prompts for Reels, TikTok and YouTube Shorts, grouped by format, for days when you have no ideas.

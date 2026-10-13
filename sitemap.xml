@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://kipfire.com/</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://kipfire.com/</loc><lastmod>2026-10-13</lastmod></url>
   <url><loc>https://kipfire.com/no-idea-what-to-post/</loc><lastmod>2026-09-29</lastmod></url>
-  <url><loc>https://kipfire.com/faq/</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://kipfire.com/faq/</loc><lastmod>2026-10-13</lastmod></url>
   <url><loc>https://kipfire.com/tips/what-to-post-on-reels/</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://kipfire.com/tips/hooks-for-talking-head-reels/</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://kipfire.com/tips/post-daily-without-burnout/</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://kipfire.com/tips/</loc><lastmod>2026-09-29</lastmod></url>
-  <url><loc>https://kipfire.com/about/</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://kipfire.com/about/</loc><lastmod>2026-10-13</lastmod></url>
+  <!-- journal:start -->
+  <url><loc>https://kipfire.com/journal/</loc><lastmod>2026-10-13</lastmod></url>
+  <url><loc>https://kipfire.com/journal/ten-free-tasks-and-every-category/</loc><lastmod>2026-10-13</lastmod></url>
+  <url><loc>https://kipfire.com/journal/kipfire-is-on-the-app-store/</loc><lastmod>2026-09-29</lastmod></url>
+<!-- journal:end -->
   <url><loc>https://kipfire.com/privacy/</loc><lastmod>2026-09-29</lastmod></url>
   <url><loc>https://kipfire.com/terms/</loc><lastmod>2026-09-29</lastmod></url>
 </urlset>
