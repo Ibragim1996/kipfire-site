@@ -30,7 +30,7 @@
     <p id="gate-copy">Only your password can change the site. Opening this link is not enough.</p>
     <form class="write-form" id="gate-form">
       <label>Password<input id="password" type="password" autocomplete="current-password" required minlength="8"></label>
-      <label id="key-label">GitHub key, one time<input id="github-key" type="password" autocomplete="off" placeholder="github_pat_..."></label>
+      <label id="key-label" hidden>GitHub key, one time<input id="github-key" type="password" autocomplete="off" placeholder="github_pat_..."></label>
       <button class="btn btn-primary" id="gate-button" type="submit">Sign in</button>
       <p class="write-note" id="gate-status" role="status"></p>
     </form>
@@ -94,7 +94,7 @@
   var API = 'https://kipfire-backend.onrender.com/api/site-admin';
   var SESSION_KEY = 'kipfireOwnerSession';
   var session = localStorage.getItem(SESSION_KEY) || '';
-  var needsSetup = true;
+  var needsSetup = false;
   var posts = [];
   var tipPosts = [];
   var profile = { name: '', body: '', photo: '' };
@@ -154,8 +154,8 @@
     keyLabel.hidden = !needsSetup;
     document.getElementById('gate-title').textContent = needsSetup ? 'Create your password' : 'Sign in';
     document.getElementById('gate-copy').textContent = needsSetup
-      ? 'Choose a password for this phone. Paste the GitHub key once. After that, the phone only asks for the password.'
-      : 'Only your password can change the site. Opening this link is not enough.';
+      ? 'Choose a password. Paste the GitHub key once. Every other phone or browser will ask for the password only.'
+      : 'Sign in with the password you created. The GitHub key is already saved for the whole site.';
     document.getElementById('gate-button').textContent = needsSetup ? 'Save and sign in' : 'Sign in';
     var savedKey = localStorage.getItem('kipfireSiteToken') || '';
     if (needsSetup && savedKey && !document.getElementById('github-key').value) {
@@ -447,7 +447,8 @@
     if (session && !needsSetup) return loadDesk();
     showGate('');
   }).catch(function () {
-    showGate('The site admin is still starting. Refresh in a minute.');
+    needsSetup = false;
+    showGate('Sign in with your password. If this just started, wait a minute and refresh.');
   });
 })();
 </script>
