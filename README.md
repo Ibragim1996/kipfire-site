@@ -18,7 +18,7 @@ Static website for KipFire. Plain HTML + CSS, no build step needed to host.
 5. Wait for DNS (minutes to a few hours). Then submit https://kipfire.com/sitemap.xml in Google Search Console.
 
 ## Publishing news yourself
-Open https://kipfire.com/write/ while signed into GitHub as the site owner. The page asks for a fine-grained token limited to this repo (Contents: Read and write). Articles are committed as normal pages under `/journal/`, so they stay on the site and are listed in the sitemap, the RSS feed, and `llms.txt`.
+Open https://kipfire.com/write/ and sign in with the owner password. The GitHub key is stored once on the server, not in the browser. Articles are committed as normal pages under `/journal/` and `/tips/`, so they stay on the site and are listed in the sitemap, the RSS feed, and `llms.txt`.
 
 ## After launch
 - Update the Privacy Policy URL in App Store Connect to https://kipfire.com/privacy/

@@ -25,25 +25,22 @@
   <h1>Owner desk</h1>
   <p class="lede">One page for your photo and story, app updates, news, and tips. What you publish here shows on kipfire.com and stays there.</p>
 
-  <div id="key-locked" hidden>
-    <div class="saved-key">
-      <strong>Key saved in this browser.</strong>
-      <p>You can publish from this page. The key stays hidden.</p>
-      <div class="write-actions">
-        <button class="btn btn-ghost" id="replace-key" type="button">Replace key</button>
-        <button class="btn btn-ghost" id="forget-token" type="button">Remove key</button>
-      </div>
-    </div>
+  <div id="gate">
+    <h2 id="gate-title">Sign in</h2>
+    <p id="gate-copy">Only your password can change the site. Opening this link is not enough.</p>
+    <form class="write-form" id="gate-form">
+      <label>Password<input id="password" type="password" autocomplete="current-password" required minlength="8"></label>
+      <label id="key-label">GitHub key, one time<input id="github-key" type="password" autocomplete="off" placeholder="github_pat_..."></label>
+      <button class="btn btn-primary" id="gate-button" type="submit">Sign in</button>
+      <p class="write-note" id="gate-status" role="status"></p>
+    </form>
   </div>
 
-  <div id="key-setup">
-    <h2>Site key</h2>
-    <p>Paste the GitHub key once. After it is saved, this box goes away.</p>
-    <div class="write-form">
-      <label>Key<input id="token" type="password" autocomplete="new-password" placeholder="github_pat_..."></label>
-      <button class="btn btn-primary" id="save-token" type="button">Save key</button>
-      <p class="write-note" id="token-state"></p>
-    </div>
+  <div id="desk" hidden>
+  <div class="saved-key">
+    <strong>Signed in on this phone.</strong>
+    <p>This browser remembers you. Someone else who opens the link only sees the password box.</p>
+    <button class="btn btn-ghost" id="sign-out" type="button">Sign out</button>
   </div>
 
   <h2>About me</h2>
@@ -87,14 +84,17 @@
 
   <h2>Already on the site</h2>
   <ul class="tip-list" id="existing"></ul>
+  </div>
 </div></article>
 </main>
 <script src="../assets/publisher.js"></script>
 <script>
 (function () {
   var P = window.KipfirePublisher;
-  var TOKEN_KEY = 'kipfireSiteToken';
-  var savedToken = localStorage.getItem(TOKEN_KEY) || '';
+  var API = 'https://kipfire-backend.onrender.com/api/site-admin';
+  var SESSION_KEY = 'kipfireOwnerSession';
+  var session = localStorage.getItem(SESSION_KEY) || '';
+  var needsSetup = true;
   var posts = [];
   var tipPosts = [];
   var profile = { name: '', body: '', photo: '' };
@@ -103,8 +103,6 @@
   var originalSlug = '';
   var originalKind = '';
 
-  function token() { return savedToken; }
-
   function today() {
     var d = new Date();
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -112,89 +110,58 @@
   document.getElementById('date').value = today();
 
   function explain(err) {
-    if (err.status === 401) return 'This key was rejected. Create a new one and save it again.';
-    if (err.status === 403) return 'This key needs Contents set to Read and write on kipfire-site.';
-    if (err.status === 404) return 'kipfire-site is not available to this key. Select that repository when you create the key.';
+    if (err.status === 401) return 'Wrong password, or this phone needs you to sign in again.';
+    if (err.status === 409) return err.message || 'The password is already set.';
     return err.message || 'Could not publish.';
   }
 
-  async function gh(pathname, options) {
-    var res = await fetch('https://api.github.com' + pathname, Object.assign({}, options, {
-      headers: Object.assign({
-        Accept: 'application/vnd.github+json',
-        Authorization: 'Bearer ' + token(),
-        'X-GitHub-Api-Version': '2022-11-28'
-      }, (options && options.headers) || {})
-    }));
-    var text = await res.text();
+  async function api(path, options) {
+    var headers = { 'Content-Type': 'application/json' };
+    if (session) headers.Authorization = 'Bearer ' + session;
+    var res = await fetch(API + path, Object.assign({ headers: headers }, options || {}));
     var data = null;
-    try { data = text ? JSON.parse(text) : null; } catch (e) { data = { message: text }; }
+    try { data = await res.json(); } catch (e) { data = {}; }
     if (!res.ok) {
-      var err = new Error((data && data.message) || ('Error ' + res.status));
+      var err = new Error((data && (data.detail || data.message)) || ('Error ' + res.status));
+      if (Array.isArray(err.message)) err.message = 'Check the password. It needs at least 8 characters.';
       err.status = res.status;
       throw err;
     }
     return data;
   }
 
-  function decodeContent(file) {
-    var raw = atob(String(file.content || '').replace(/\n/g, ''));
-    var bytes = new Uint8Array(raw.length);
-    for (var i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
-    return new TextDecoder().decode(bytes);
-  }
-
-  function toBase64(text) {
-    var bytes = new TextEncoder().encode(text);
-    var bin = '';
-    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-    return btoa(bin);
-  }
-
   async function readRepoFile(path) {
-    var file = await gh('/repos/' + P.OWNER + '/' + P.REPO + '/contents/' + path + '?ref=main');
-    return decodeContent(file);
+    var data = await api('/file?path=' + encodeURIComponent(path));
+    return data.content;
   }
 
   async function commit(files, deletions, message) {
-    var ref = await gh('/repos/' + P.OWNER + '/' + P.REPO + '/git/ref/heads/main');
-    var parentSha = ref.object.sha;
-    var parent = await gh('/repos/' + P.OWNER + '/' + P.REPO + '/git/commits/' + parentSha);
-    var tree = [];
-    for (var i = 0; i < files.length; i++) {
-      var encoded = files[i].encoding === 'base64' ? files[i].content : toBase64(files[i].content);
-      var blob = await gh('/repos/' + P.OWNER + '/' + P.REPO + '/git/blobs', {
-        method: 'POST',
-        body: JSON.stringify({ content: encoded, encoding: 'base64' })
-      });
-      tree.push({ path: files[i].path, mode: '100644', type: 'blob', sha: blob.sha });
-    }
-    (deletions || []).forEach(function (path) {
-      tree.push({ path: path, mode: '100644', type: 'blob', sha: null });
-    });
-    var nextTree = await gh('/repos/' + P.OWNER + '/' + P.REPO + '/git/trees', {
+    await api('/publish', {
       method: 'POST',
-      body: JSON.stringify({ base_tree: parent.tree.sha, tree: tree })
-    });
-    var commitData = await gh('/repos/' + P.OWNER + '/' + P.REPO + '/git/commits', {
-      method: 'POST',
-      body: JSON.stringify({ message: message, tree: nextTree.sha, parents: [parentSha] })
-    });
-    await gh('/repos/' + P.OWNER + '/' + P.REPO + '/git/refs/heads/main', {
-      method: 'PATCH',
-      body: JSON.stringify({ sha: commitData.sha })
+      body: JSON.stringify({ message: message, files: files, deletions: deletions || [] })
     });
   }
 
-  function showLocked() {
-    document.getElementById('key-setup').hidden = true;
-    document.getElementById('key-locked').hidden = false;
+  function showDesk() {
+    document.getElementById('gate').hidden = true;
+    document.getElementById('desk').hidden = false;
   }
-  function showSetup(message) {
-    document.getElementById('key-locked').hidden = true;
-    document.getElementById('key-setup').hidden = false;
-    document.getElementById('token').value = '';
-    document.getElementById('token-state').textContent = message || '';
+  function showGate(message) {
+    document.getElementById('desk').hidden = true;
+    document.getElementById('gate').hidden = false;
+    document.getElementById('gate-status').textContent = message || '';
+    var keyLabel = document.getElementById('key-label');
+    keyLabel.hidden = !needsSetup;
+    document.getElementById('gate-title').textContent = needsSetup ? 'Create your password' : 'Sign in';
+    document.getElementById('gate-copy').textContent = needsSetup
+      ? 'Choose a password for this phone. Paste the GitHub key once. After that, the phone only asks for the password.'
+      : 'Only your password can change the site. Opening this link is not enough.';
+    document.getElementById('gate-button').textContent = needsSetup ? 'Save and sign in' : 'Sign in';
+    var savedKey = localStorage.getItem('kipfireSiteToken') || '';
+    if (needsSetup && savedKey && !document.getElementById('github-key').value) {
+      document.getElementById('github-key').value = savedKey;
+      document.getElementById('gate-copy').textContent = 'The GitHub key from this browser is already in the box, shown as dots. Choose a password and press Save. After that, the phone only needs the password.';
+    }
   }
 
   function fillProfile(next) {
@@ -244,7 +211,7 @@
   }
 
   async function loadDesk() {
-    document.getElementById('token-state').textContent = 'Checking the key…';
+    document.getElementById('gate-status').textContent = 'Opening your desk…';
     try {
       posts = JSON.parse(await readRepoFile('journal/posts.json')).posts || [];
       try {
@@ -258,29 +225,49 @@
       } catch (err) {
         if (err.status !== 404) throw err;
       }
-      showLocked();
+      showDesk();
       renderExisting();
     } catch (err) {
-      savedToken = '';
-      localStorage.removeItem(TOKEN_KEY);
-      showSetup(explain(err));
+      session = '';
+      localStorage.removeItem(SESSION_KEY);
+      showGate(explain(err));
     }
   }
 
-  document.getElementById('save-token').addEventListener('click', function () {
-    var value = document.getElementById('token').value.trim();
-    if (!value) return;
-    savedToken = value;
-    localStorage.setItem(TOKEN_KEY, value);
-    loadDesk();
+  document.getElementById('gate-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    var status = document.getElementById('gate-status');
+    var password = document.getElementById('password').value;
+    status.textContent = 'Checking…';
+    try {
+      var data;
+      if (needsSetup) {
+        data = await api('/setup', {
+          method: 'POST',
+          body: JSON.stringify({
+            password: password,
+            githubToken: document.getElementById('github-key').value.trim()
+          })
+        });
+        localStorage.removeItem('kipfireSiteToken');
+      } else {
+        data = await api('/login', {
+          method: 'POST',
+          body: JSON.stringify({ password: password })
+        });
+      }
+      session = data.session;
+      localStorage.setItem(SESSION_KEY, session);
+      document.getElementById('password').value = '';
+      await loadDesk();
+    } catch (err) {
+      status.textContent = explain(err);
+    }
   });
-  document.getElementById('replace-key').addEventListener('click', function () {
-    showSetup('Paste the new key.');
-  });
-  document.getElementById('forget-token').addEventListener('click', function () {
-    savedToken = '';
-    localStorage.removeItem(TOKEN_KEY);
-    showSetup('Key removed from this browser.');
+  document.getElementById('sign-out').addEventListener('click', function () {
+    session = '';
+    localStorage.removeItem(SESSION_KEY);
+    showGate('Signed out.');
   });
 
   document.getElementById('photo').addEventListener('change', function () {
@@ -308,8 +295,8 @@
   document.getElementById('profile-form').addEventListener('submit', async function (event) {
     event.preventDefault();
     var status = document.getElementById('profile-status');
-    if (!token()) {
-      status.textContent = 'Save the key first.';
+    if (!session) {
+      status.textContent = 'Sign in first.';
       return;
     }
     var next = {
@@ -361,8 +348,8 @@
   document.getElementById('editor').addEventListener('submit', async function (event) {
     event.preventDefault();
     var status = document.getElementById('status');
-    if (!token()) {
-      status.textContent = 'Save the key first.';
+    if (!session) {
+      status.textContent = 'Sign in first.';
       return;
     }
     var post = {
@@ -455,8 +442,13 @@
     }
   });
 
-  if (savedToken) loadDesk();
-  else showSetup('Paste the key, then press Save key.');
+  api('/status').then(function (data) {
+    needsSetup = !!data.needsSetup;
+    if (session && !needsSetup) return loadDesk();
+    showGate('');
+  }).catch(function () {
+    showGate('The site admin is still starting. Refresh in a minute.');
+  });
 })();
 </script>
 </body>
