@@ -335,7 +335,7 @@
     var main = '<article class="article founder-page"><div class="wrap">' + photo +
       '<h1>' + esc(name) + '</h1><p class="lede">Founder of KipFire</p><div class="founder-copy">' + bodyToHtml(profile.body) + '</div>' +
       '<section><h2>Contact</h2><p>For press, partnerships or investment: <!-- TODO(Ibrahim): add your real contact email here, e.g. <a href="mailto:YOU@kipfire.com">YOU@kipfire.com</a> --><a href="mailto:support@kipfire.com">support@kipfire.com</a></p>' +
-      '<!-- TODO(Ibrahim): add your real LinkedIn URL: <p><a href="https://www.linkedin.com/in/YOUR-PROFILE/" rel="me noopener">LinkedIn</a></p> and add the same URL to person.sameAs in publisher.js -->' +
+      '<p>Follow me: <a href="https://www.linkedin.com/in/ibragim-adaev-16b26241a/" rel="me noopener">LinkedIn</a> · <a href="https://www.instagram.com/ibra.borne/" rel="me noopener">Instagram</a></p>' +
       '</section></div></article>';
     var person = {
       '@context': 'https://schema.org',
@@ -346,8 +346,8 @@
       jobTitle: 'Founder',
       url: SITE + '/founder/',
       homeLocation: { '@type': 'Place', name: 'Seattle, Washington, USA' },
-      worksFor: { '@type': 'Organization', '@id': SITE + '/#org', name: 'KipFire', url: SITE + '/' }
-      /* TODO(Ibrahim): add sameAs: ['https://www.linkedin.com/in/YOUR-PROFILE/'] with your real profile URL */
+      worksFor: { '@type': 'Organization', '@id': SITE + '/#org', name: 'KipFire', url: SITE + '/' },
+      sameAs: ['https://www.linkedin.com/in/ibragim-adaev-16b26241a/', 'https://www.instagram.com/ibra.borne/']
     };
     var profilePage = {
       '@context': 'https://schema.org',
