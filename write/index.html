@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Owner desk | KipFire</title>
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="googlebot" content="noindex, nofollow">
 <meta name="theme-color" content="#0C0C0E">
 <link rel="icon" type="image/png" href="../assets/favicon-64.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -366,7 +367,7 @@
         { path: 'journal/feed.xml', content: P.renderFeed(nextJournal) },
         { path: 'tips/posts.json', content: JSON.stringify({ posts: nextTips }, null, 2) + '\n' },
         { path: 'tips/index.html', content: P.patchMarked(await readRepoFile('tips/index.html'), 'tips', P.tipListBlock(nextTips)) },
-        { path: newPath, content: isTip ? P.renderTipArticle(post) : P.renderArticle(post) },
+        { path: newPath, content: isTip ? P.renderTipArticle(post, nextTips) : P.renderArticle(post) },
         { path: 'index.html', content: P.patchMarked(await readRepoFile('index.html'), 'journal:latest', P.latestBlock(nextJournal)) },
         { path: 'sitemap.xml', content: P.patchMarked(P.patchMarked(sitemap, 'journal', P.sitemapBlock(nextJournal)), 'tips', P.tipSitemapBlock(nextTips)) },
         { path: 'llms.txt', content: P.patchMarked(P.patchMarked(llms, 'journal', P.llmsBlock(nextJournal)), 'tips', P.tipLlmsBlock(nextTips)) }

@@ -1,5 +1,26 @@
+# KipFire robots.txt
+# /write/ is NOT disallowed on purpose: crawlers must be able to fetch it to see its
+# <meta name="robots" content="noindex, nofollow"> and X-Robots-like signal. A Disallow
+# would stop Google from reading the noindex and the URL could still be indexed from links.
 User-agent: *
 Allow: /
-Disallow: /write/
+
+# AI search / answer crawlers (explicitly welcome)
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Bingbot
+Allow: /
 
 Sitemap: https://kipfire.com/sitemap.xml

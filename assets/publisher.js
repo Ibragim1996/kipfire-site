@@ -3,7 +3,9 @@
   var OWNER = 'Ibragim1996';
   var REPO = 'kipfire-site';
   var SITE = 'https://kipfire.com';
+  var FONTS = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Figtree:wght@400;500;600;700&display=swap';
   var KINDS = { news: 'News', update: 'Update', tip: 'Tip' };
+  var STOP = ['a', 'an', 'the', 'and', 'or', 'of', 'to', 'for', 'in', 'on', 'with', 'your', 'you', 'is', 'are', 'it', 'one', 'today'];
   var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   var SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>';
 
@@ -34,13 +36,22 @@
       .normalize('NFKD')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
-      .slice(0, 60)
-      .replace(/-+$/g, '');
+      .split('-')
+      .filter(function (word, i) { return i === 0 || STOP.indexOf(word) < 0; })
+      .join('-');
+    if (slug.length > 50) {
+      var cut = slug.slice(0, 51);
+      var at = cut.lastIndexOf('-');
+      slug = at > 0 ? cut.slice(0, at) : slug.slice(0, 50);
+    }
+    slug = slug.replace(/-+$/g, '');
     return slug || 'note';
   }
 
   function inline(text) {
-    return esc(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    return esc(text)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\[([^\]]+)\]\((\/[^)\s]*|https:\/\/[^)\s]+)\)/g, '<a href="$2">$1</a>');
   }
 
   function bodyToHtml(text) {
@@ -119,14 +130,22 @@
       '<meta property="og:description" content="' + esc(opts.description) + '">\n' +
       '<meta property="og:url" content="' + esc(opts.canonical) + '">\n' +
       '<meta property="og:image" content="' + SITE + '/assets/og-image.png">\n' +
+      '<meta property="og:image:width" content="1200">\n' +
+      '<meta property="og:image:height" content="630">\n' +
+      '<meta property="og:image:alt" content="KipFire: pick a card, react on camera">\n' +
       '<meta name="twitter:card" content="summary_large_image">\n' +
+      '<meta name="twitter:title" content="' + esc(opts.title) + '">\n' +
+      '<meta name="twitter:description" content="' + esc(opts.description) + '">\n' +
+      '<meta name="twitter:image" content="' + SITE + '/assets/og-image.png">\n' +
       '<meta name="apple-itunes-app" content="app-id=6755289956">\n' +
       (opts.rss ? '<link rel="alternate" type="application/rss+xml" title="KipFire news" href="' + SITE + '/journal/feed.xml">\n' : '') +
       '<link rel="icon" type="image/png" href="' + prefix + 'assets/favicon-64.png">\n' +
       '<link rel="apple-touch-icon" href="' + prefix + 'assets/icon-180.png">\n' +
       '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
       '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
-      '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Figtree:wght@400;500;600;700&display=swap">\n' +
+      '<link rel="preload" as="style" href="' + FONTS + '">\n' +
+      '<link rel="stylesheet" href="' + FONTS + '" media="print" onload="this.media=\'all\'">\n' +
+      '<noscript><link rel="stylesheet" href="' + FONTS + '"></noscript>\n' +
       '<link rel="stylesheet" href="' + prefix + 'assets/site.css">\n' +
       opts.ld.map(function (obj) {
         return '<script type="application/ld+json">' + jsonLd(obj) + '</script>';
@@ -146,17 +165,77 @@
   var org = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
+    '@id': SITE + '/#org',
     name: 'KipFire',
     url: SITE + '/',
     logo: SITE + '/assets/icon-180.png',
-    email: 'support@kipfire.com'
+    email: 'support@kipfire.com',
+    founder: { '@id': SITE + '/founder/#person' },
+    sameAs: ['https://apps.apple.com/us/app/kipfire/id6755289956']
   };
+  var AUTHOR = { '@type': 'Person', '@id': SITE + '/founder/#person', name: 'Ibrahim Adaev', url: SITE + '/founder/' };
+  var PUBLISHER = { '@type': 'Organization', '@id': SITE + '/#org', name: 'KipFire', logo: { '@type': 'ImageObject', url: SITE + '/assets/icon-180.png' } };
+
+  function pageTitle(title) {
+    var full = title + ' | KipFire';
+    return full.length > 60 ? title : full;
+  }
+
+  function byline(prefix) {
+    return '<a href="' + prefix + 'founder/">Ibrahim Adaev</a>';
+  }
+
+  function crumbs(section, sectionUrl, title, url) {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' },
+        { '@type': 'ListItem', position: 2, name: section, item: sectionUrl },
+        { '@type': 'ListItem', position: 3, name: title, item: url }
+      ]
+    };
+  }
+
+  function articleLd(post, url) {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: post.title,
+      description: post.description,
+      image: SITE + '/assets/og-image.png',
+      datePublished: post.date,
+      dateModified: post.updated || post.date,
+      url: url,
+      mainEntityOfPage: url,
+      inLanguage: 'en',
+      author: AUTHOR,
+      publisher: PUBLISHER
+    };
+  }
+
+  /* Static tips that are not in tips/posts.json. */
+  var STATIC_TIPS = [
+    { slug: 'what-to-post-on-reels', title: 'What to post on Reels when you have no ideas: 30 prompts' },
+    { slug: 'hooks-for-talking-head-reels', title: '5 hooks for talking-head Reels that stop the scroll' },
+    { slug: 'post-daily-without-burnout', title: 'How to post every day without burning out' }
+  ];
+
+  function relatedTips(current, posts, prefix) {
+    var pool = sortPosts(posts || []).concat(STATIC_TIPS).filter(function (p) { return p.slug !== current; });
+    var seen = {};
+    var picks = pool.filter(function (p) { if (seen[p.slug]) return false; seen[p.slug] = 1; return true; }).slice(0, 3);
+    return '<section class="related"><h2>More content tips</h2><ul>' +
+      picks.map(function (p) { return '<li><a href="' + prefix + 'tips/' + p.slug + '/">' + esc(p.title) + '</a></li>'; }).join('') +
+      '<li><a href="' + prefix + 'no-idea-what-to-post/">No idea what to post? Start here</a></li></ul></section>';
+  }
 
   function renderArticle(post) {
     var url = SITE + '/journal/' + post.slug + '/';
-    var title = post.title + ' | KipFire';
+    var title = pageTitle(post.title);
+    var kind = post.kind && post.kind !== 'news' ? ' · ' + esc(kindLabel(post.kind)) : '';
     var main = '<article class="article"><div class="wrap">' +
-      '<p class="meta"><a href="../">News</a> · ' + esc(kindLabel(post.kind)) + ' · <time datetime="' + esc(post.date) + '">' + esc(prettyDate(post.date)) + '</time> · Ibra</p>' +
+      '<p class="meta"><a href="../">News</a>' + kind + ' · <time datetime="' + esc(post.date) + '">' + esc(prettyDate(post.date)) + '</time> · ' + byline('../../') + '</p>' +
       '<h1>' + esc(post.title) + '</h1>\n' +
       bodyToHtml(post.body) +
       '<div class="inline-cta"><p>Want a new prompt every time you open your phone? KipFire gives you one card to film.</p>' +
@@ -169,27 +248,7 @@
       description: post.description,
       canonical: url,
       ogType: 'article',
-      ld: [org, {
-        '@context': 'https://schema.org',
-        '@type': 'Article',
-        headline: post.title,
-        description: post.description,
-        datePublished: post.date,
-        dateModified: post.date,
-        url: url,
-        mainEntityOfPage: url,
-        inLanguage: 'en',
-        author: { '@type': 'Person', name: 'Ibra', url: SITE + '/about/' },
-        publisher: { '@type': 'Organization', name: 'KipFire', logo: { '@type': 'ImageObject', url: SITE + '/assets/icon-180.png' } }
-      }, {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' },
-          { '@type': 'ListItem', position: 2, name: 'News', item: SITE + '/journal/' },
-          { '@type': 'ListItem', position: 3, name: post.title, item: url }
-        ]
-      }]
+      ld: [org, articleLd(post, url), crumbs('News', SITE + '/journal/', post.title, url)]
     }, main);
   }
 
@@ -200,13 +259,13 @@
   }
 
   function renderListing(posts) {
-    var main = '<section class="page-head"><div class="wrap"><h1>News</h1>' +
+    var main = '<section class="page-head"><div class="wrap"><h1>KipFire news</h1>' +
       '<p class="lede">News and app updates. Older pieces stay here. Tips live in <a href="../tips/">Content tips</a>.</p></div></section>' +
       '<section><div class="wrap">' + (posts.length ? listItems(posts, function (post) { return post.slug + '/'; }) : '<p>Nothing published yet.</p>') + '</div></section>';
     return shell({
       prefix: '../',
       current: 'journal/',
-      title: 'News and updates | KipFire',
+      title: 'KipFire News and App Updates',
       description: 'App updates, news and posting notes from KipFire. New pieces are added over time.',
       canonical: SITE + '/journal/',
       rss: true,
@@ -274,55 +333,66 @@
       ? '<img class="founder-avatar" src="../' + esc(profile.photo) + '" alt="' + esc(name) + '" width="168" height="168">'
       : '';
     var main = '<article class="article founder-page"><div class="wrap">' + photo +
-      '<h1>' + esc(name) + '</h1><div class="founder-copy">' + bodyToHtml(profile.body) + '</div></div></article>';
+      '<h1>' + esc(name) + '</h1><p class="lede">Founder of KipFire</p><div class="founder-copy">' + bodyToHtml(profile.body) + '</div>' +
+      '<section><h2>Contact</h2><p>For press, partnerships or investment: <!-- TODO(Ibrahim): add your real contact email here, e.g. <a href="mailto:YOU@kipfire.com">YOU@kipfire.com</a> --><a href="mailto:support@kipfire.com">support@kipfire.com</a></p>' +
+      '<!-- TODO(Ibrahim): add your real LinkedIn URL: <p><a href="https://www.linkedin.com/in/YOUR-PROFILE/" rel="me noopener">LinkedIn</a></p> and add the same URL to person.sameAs in publisher.js -->' +
+      '</section></div></article>';
     var person = {
       '@context': 'https://schema.org',
       '@type': 'Person',
+      '@id': SITE + '/founder/#person',
       name: name,
+      alternateName: 'Ibra',
       jobTitle: 'Founder',
       url: SITE + '/founder/',
-      worksFor: { '@type': 'Organization', name: 'KipFire', url: SITE + '/' }
+      homeLocation: { '@type': 'Place', name: 'Seattle, Washington, USA' },
+      worksFor: { '@type': 'Organization', '@id': SITE + '/#org', name: 'KipFire', url: SITE + '/' }
+      /* TODO(Ibrahim): add sameAs: ['https://www.linkedin.com/in/YOUR-PROFILE/'] with your real profile URL */
+    };
+    var profilePage = {
+      '@context': 'https://schema.org',
+      '@type': 'ProfilePage',
+      url: SITE + '/founder/',
+      name: name + ', founder of KipFire',
+      mainEntity: { '@id': SITE + '/founder/#person' }
+    };
+    var founderCrumbs = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' },
+        { '@type': 'ListItem', position: 2, name: 'Founder', item: SITE + '/founder/' }
+      ]
     };
     if (profile.photo) person.image = SITE + '/' + profile.photo;
     return shell({
       prefix: '../',
       current: 'founder/',
-      title: name + ', founder of KipFire',
-      description: firstLine(profile.body),
+      title: name + ', Founder of KipFire',
+      description: name + ' is the Seattle-based founder of KipFire, an iPhone app that helps beginners film content. Why he built it, alone, from his car.',
       canonical: SITE + '/founder/',
-      ld: [org, person]
+      ld: [org, person, profilePage, founderCrumbs]
     }, main);
   }
 
-  function renderTipArticle(post) {
+  function renderTipArticle(post, allPosts) {
     var url = SITE + '/tips/' + post.slug + '/';
     var main = '<article class="article"><div class="wrap">' +
-      '<p class="meta"><a href="../">Content tips</a> · <time datetime="' + esc(post.date) + '">' + esc(prettyDate(post.date)) + '</time> · Ibra</p>' +
+      '<p class="meta"><a href="../">Content tips</a> · <time datetime="' + esc(post.date) + '">' + esc(prettyDate(post.date)) + '</time> · ' + byline('../../') + '</p>' +
       '<h1>' + esc(post.title) + '</h1>\n' +
       bodyToHtml(post.body) +
       '<div class="inline-cta"><p>Want a new prompt every time you open your phone? KipFire gives you one card to film.</p>' +
       '<a class="btn btn-primary" href="https://apps.apple.com/us/app/kipfire/id6755289956" rel="noopener">' + SVG + 'Download on the App Store</a></div>' +
+      relatedTips(post.slug, allPosts, '../../') +
       '</div></article>';
     return shell({
       prefix: '../../',
       current: 'tips/',
-      title: post.title + ' | KipFire',
+      title: pageTitle(post.title),
       description: post.description,
       canonical: url,
       ogType: 'article',
-      ld: [org, {
-        '@context': 'https://schema.org',
-        '@type': 'Article',
-        headline: post.title,
-        description: post.description,
-        datePublished: post.date,
-        dateModified: post.date,
-        url: url,
-        mainEntityOfPage: url,
-        inLanguage: 'en',
-        author: { '@type': 'Person', name: 'Ibra', url: SITE + '/founder/' },
-        publisher: { '@type': 'Organization', name: 'KipFire', logo: { '@type': 'ImageObject', url: SITE + '/assets/icon-180.png' } }
-      }]
+      ld: [org, articleLd(post, url), crumbs('Content tips', SITE + '/tips/', post.title, url)]
     }, main);
   }
 
@@ -349,9 +419,10 @@
     var person = {
       '@context': 'https://schema.org',
       '@type': 'Person',
-      name: profile.name || 'Ibra',
+      '@id': SITE + '/founder/#person',
+      name: profile.name || 'Ibrahim Adaev',
       jobTitle: 'Founder',
-      url: SITE + '/about/',
+      url: SITE + '/founder/',
       worksFor: { '@type': 'Organization', name: 'KipFire', url: SITE + '/' }
     };
     if (profile.photo) person.image = SITE + '/' + profile.photo;
@@ -387,6 +458,7 @@
     llmsBlock: llmsBlock,
     renderFounder: renderFounder,
     renderTipArticle: renderTipArticle,
+    relatedTips: relatedTips,
     tipListBlock: tipListBlock,
     tipSitemapBlock: tipSitemapBlock,
     tipLlmsBlock: tipLlmsBlock,
