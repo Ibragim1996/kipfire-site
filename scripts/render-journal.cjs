@@ -39,11 +39,13 @@ patch('sitemap.xml', 'journal', P.sitemapBlock(posts));
 patch('llms.txt', 'journal', P.llmsBlock(posts));
 console.log('rendered', posts.length, 'posts');
 
+// Tips: no clean-up runs in tips/, so tips/feed.xml is never deleted ('feed.xml' is also in keep).
 // Tips (same as the owner desk does on publish)
 const tips = P.sortPosts(JSON.parse(fs.readFileSync(path.join(root, 'tips/posts.json'), 'utf8')).posts);
 for (const post of tips) {
   write(path.join('tips', post.slug, 'index.html'), P.renderTipArticle(post, tips));
 }
+write('tips/feed.xml', P.renderTipFeed(tips));
 patch('tips/index.html', 'tips', P.tipListBlock(tips));
 patch('sitemap.xml', 'tips', P.tipSitemapBlock(tips));
 patch('llms.txt', 'tips', P.tipLlmsBlock(tips));

@@ -123,6 +123,7 @@
       '<title>' + esc(opts.title) + '</title>\n' +
       '<meta name="description" content="' + esc(opts.description) + '">\n' +
       '<link rel="canonical" href="' + esc(opts.canonical) + '">\n' +
+      (opts.feed ? '<link rel="alternate" type="application/rss+xml" title="' + esc(opts.feed.title) + '" href="' + esc(opts.feed.href) + '">\n' : '') +
       '<meta name="theme-color" content="#0C0C0E">\n' +
       '<meta property="og:type" content="' + (opts.ogType || 'website') + '">\n' +
       '<meta property="og:site_name" content="KipFire">\n' +
@@ -281,16 +282,18 @@
     }, main);
   }
 
-  function renderFeed(posts) {
+  function renderFeed(posts, opts) {
+    opts = opts || {};
+    var section = opts.section || 'journal';
     var items = sortPosts(posts).map(function (post) {
-      var url = SITE + '/journal/' + post.slug + '/';
+      var url = SITE + '/' + section + '/' + post.slug + '/';
       return '<item><title>' + esc(post.title) + '</title><link>' + url + '</link><guid>' + url + '</guid>' +
         '<pubDate>' + new Date(post.date + 'T15:00:00Z').toUTCString() + '</pubDate>' +
         '<description>' + esc(post.description) + '</description></item>';
     }).join('');
     return '<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel>' +
-      '<title>KipFire news</title><link>' + SITE + '/journal/</link>' +
-      '<description>App updates, news and posting notes from KipFire.</description>' +
+      '<title>' + esc(opts.title || 'KipFire news') + '</title><link>' + SITE + '/' + section + '/</link>' +
+      '<description>' + esc(opts.description || 'App updates, news and posting notes from KipFire.') + '</description>' +
       '<language>en</language>' + items + '</channel></rss>\n';
   }
 
@@ -392,8 +395,17 @@
       description: post.description,
       canonical: url,
       ogType: 'article',
+      feed: { title: 'KipFire tips', href: '/tips/feed.xml' },
       ld: [org, articleLd(post, url), crumbs('Content tips', SITE + '/tips/', post.title, url)]
     }, main);
+  }
+
+  function renderTipFeed(posts) {
+    return renderFeed(posts, {
+      section: 'tips',
+      title: 'KipFire tips',
+      description: 'Beginner guides for making videos on camera: content ideas, hooks and what to say.'
+    });
   }
 
   function tipListBlock(posts) {
@@ -453,6 +465,7 @@
     renderArticle: renderArticle,
     renderListing: renderListing,
     renderFeed: renderFeed,
+    renderTipFeed: renderTipFeed,
     latestBlock: latestBlock,
     sitemapBlock: sitemapBlock,
     llmsBlock: llmsBlock,
