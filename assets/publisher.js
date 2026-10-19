@@ -174,16 +174,17 @@
     founder: { '@id': SITE + '/founder/#person' },
     sameAs: ['https://apps.apple.com/us/app/kipfire/id6755289956']
   };
-  var AUTHOR = { '@type': 'Person', '@id': SITE + '/founder/#person', name: 'Ibrahim Adaev', url: SITE + '/founder/' };
+  var AUTHOR = { '@type': 'Person', '@id': SITE + '/founder/#person', name: 'Ibragim Adaev', url: SITE + '/founder/' };
   var PUBLISHER = { '@type': 'Organization', '@id': SITE + '/#org', name: 'KipFire', logo: { '@type': 'ImageObject', url: SITE + '/assets/icon-180.png' } };
 
   function pageTitle(title) {
+    if (/KipFire/.test(title)) return title;
     var full = title + ' | KipFire';
     return full.length > 60 ? title : full;
   }
 
   function byline(prefix) {
-    return '<a href="' + prefix + 'founder/">Ibrahim Adaev</a>';
+    return '<a href="' + prefix + 'founder/">Ibragim Adaev</a>';
   }
 
   function crumbs(section, sectionUrl, title, url) {
@@ -267,7 +268,7 @@
       prefix: '../',
       current: 'journal/',
       title: 'KipFire News and App Updates',
-      description: 'App updates, news and posting notes from KipFire. New pieces are added over time.',
+      description: 'KipFire app updates and news: new prompt categories, free plan changes and launch notes from the founder.',
       canonical: SITE + '/journal/',
       rss: true,
       ld: [org, {
@@ -337,7 +338,7 @@
       : '';
     var main = '<article class="article founder-page"><div class="wrap">' + photo +
       '<h1>' + esc(name) + '</h1><p class="lede">Founder of KipFire</p><div class="founder-copy">' + bodyToHtml(profile.body) + '</div>' +
-      '<section><h2>Contact</h2><p>For press, partnerships or investment: <!-- TODO(Ibrahim): add your real contact email here, e.g. <a href="mailto:YOU@kipfire.com">YOU@kipfire.com</a> --><a href="mailto:support@kipfire.com">support@kipfire.com</a></p>' +
+      '<section><h2>Contact</h2><p>For press, partnerships or investment: <!-- TODO(Ibragim): add your real contact email here, e.g. <a href="mailto:YOU@kipfire.com">YOU@kipfire.com</a> --><a href="mailto:support@kipfire.com">support@kipfire.com</a></p>' +
       '<p>Follow me: <a href="https://www.linkedin.com/in/ibragim-adaev-16b26241a/" rel="me noopener">LinkedIn</a> · <a href="https://www.instagram.com/ibra.borne/" rel="me noopener">Instagram</a></p>' +
       '</section></div></article>';
     var person = {
@@ -432,7 +433,7 @@
       '@context': 'https://schema.org',
       '@type': 'Person',
       '@id': SITE + '/founder/#person',
-      name: profile.name || 'Ibrahim Adaev',
+      name: profile.name || 'Ibragim Adaev',
       jobTitle: 'Founder',
       url: SITE + '/founder/',
       worksFor: { '@type': 'Organization', name: 'KipFire', url: SITE + '/' }
