@@ -2,8 +2,10 @@
 # /write/ is NOT disallowed on purpose: crawlers must be able to fetch it to see its
 # <meta name="robots" content="noindex, nofollow"> and X-Robots-like signal. A Disallow
 # would stop Google from reading the noindex and the URL could still be indexed from links.
+# /c/ is a shared card link. The page is noindex and is not a public section of the site.
 User-agent: *
 Allow: /
+Disallow: /c/
 
 # AI search / answer crawlers (explicitly welcome)
 User-agent: OAI-SearchBot

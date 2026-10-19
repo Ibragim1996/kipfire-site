@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A card from KipFire</title>
+<meta name="description" content="Someone sent you a KipFire card. Open it in the app, or download KipFire and come back to this link.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://kipfire.com/c/">
+<meta name="theme-color" content="#0C0C0E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="KipFire">
+<meta property="og:title" content="A card from KipFire">
+<meta property="og:description" content="Someone sent you a card to film. Open it in KipFire.">
+<meta property="og:url" content="https://kipfire.com/c/">
+<meta property="og:image" content="https://kipfire.com/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="apple-itunes-app" content="app-id=6755289956">
+<link rel="icon" type="image/png" href="/assets/favicon-64.png">
+<link rel="apple-touch-icon" href="/assets/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="KipFire home"><img src="/assets/icon-180.png" alt="" width="32" height="32"><span>KIPFIRE</span></a>
+    <span class="head-cta" style="margin-left:auto"><a class="btn btn-primary btn-small" href="https://apps.apple.com/us/app/kipfire/id6755289956" rel="noopener">Get the app</a></span>
+  </div>
+</header>
+<main id="main">
+<section class="page-head"><div class="wrap">
+  <div class="card" id="shared-card" style="--glow:#7C6BF5;max-width:520px;margin:28px auto 0">
+    <div class="card-cat" id="card-label">KipFire</div>
+    <p class="card-text" id="card-text">Loading this card…</p>
+    <p class="muted" id="card-detail" hidden></p>
+    <div class="card-actions">
+      <a class="btn btn-primary" id="open-app" href="https://apps.apple.com/us/app/kipfire/id6755289956" rel="noopener">Open in KipFire</a>
+      <a class="btn btn-ghost" id="get-app" href="https://apps.apple.com/us/app/kipfire/id6755289956" rel="noopener">Download on the App Store</a>
+    </div>
+  </div>
+  <p class="card-foot" id="card-note">If KipFire is not installed yet, download it, then open this link again.</p>
+</div></section>
+</main>
+<footer class="site-foot">
+  <div class="wrap">
+    <p><strong>KipFire</strong>: content ideas for Reels, TikTok and YouTube Shorts.</p>
+    <p>&copy; 2026 KipFire. All rights reserved.</p>
+  </div>
+</footer>
+<script>
+(function () {
+  var NAMES = {
+    funny: 'Funny',
+    challenges: 'Challenges',
+    questions: 'Questions',
+    would_you_rather: 'Would You Rather',
+    hot_take: 'Hot Take',
+    inner_me: 'Inner Me',
+    for_you: 'For You',
+    trends: 'KipFire Trends'
+  };
+  var label = document.getElementById('card-label');
+  var text = document.getElementById('card-text');
+  var detail = document.getElementById('card-detail');
+  var open = document.getElementById('open-app');
+  var note = document.getElementById('card-note');
+  var id = new URLSearchParams(location.search).get('id') || '';
+  function missing() {
+    label.textContent = 'KipFire';
+    text.textContent = 'This card is not available.';
+    open.hidden = true;
+    note.textContent = 'Download KipFire and get a new card of your own.';
+  }
+  if (!/^[a-f0-9]{10}$/.test(id)) {
+    missing();
+    return;
+  }
+  open.href = 'kipfire://card/' + id;
+  fetch('https://kipfire-backend.onrender.com/api/cards/' + id)
+    .then(function (response) {
+      if (!response.ok) throw new Error('missing');
+      return response.json();
+    })
+    .then(function (card) {
+      label.textContent = NAMES[card.category] || (card.kind === 'news' ? 'KipFire Trends' : 'KipFire');
+      text.textContent = card.text || '';
+      if (card.detail) {
+        detail.hidden = false;
+        detail.textContent = card.detail;
+      }
+    })
+    .catch(missing);
+})();
+</script>
+</body>
+</html>
